@@ -1,4 +1,4 @@
-import osproc, streams, json, options
+import os, osproc, streams, json, options
 import jsonschema
 import baseprotocol
 
@@ -6,7 +6,7 @@ include messages
 
 const
   jsonRpcversion = "2.0"
-  nimlspPath = "/home/fox/.nimble/bin/nimlsp"
+  nimlspPath = getHomeDir() & "/.nimble/bin/nimlsp"
 
 type LspClient = object
   process: Process
