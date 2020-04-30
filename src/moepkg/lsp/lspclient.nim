@@ -1,5 +1,5 @@
-import osproc, streams, json, jsonschema, options
-#import messages, baseprotocol
+import osproc, streams, json, options
+import jsonschema
 import baseprotocol
 
 include messages
@@ -9,11 +9,11 @@ const
   nimlspPath = "/home/fox/.nimble/bin/nimlsp"
 
 type LspClient = object
-  processID: int
+  process: Process
   inputStream: Stream
   outputStream: Stream
 
-proc sendInitializeRequest(client: var LspClient) =
+proc sendInitializeRequest*(client: var LspClient): JsonNode =
   let
     capabilities = create(ClientCapabilities,
       workspace = none(WorkspaceClientCapabilities),
@@ -21,14 +21,15 @@ proc sendInitializeRequest(client: var LspClient) =
       experimental = none(JsonNode)
     )
 
-    processId = client.processID
+    processId = processID(client.process)
     rootPath = none(string)
     rootUri = "./"
     initializationOptions = none(JsonNode)
     workspaceFolders = none(seq[WorkspaceFolder])
     trace = none(string)
 
-  var req = create(RequestMessage, jsonRpcversion, 0, "initialize", some(
+  const id = 0
+  var req = create(RequestMessage, jsonRpcversion, id, "initialize", some(
     create(InitializeParams,
       processId,
       rootPath,
@@ -43,28 +44,26 @@ proc sendInitializeRequest(client: var LspClient) =
   client.inputStream.sendJson(req)
 
   # debug
-  echo "InitializeRequest"
-  echo req
-  echo ""
+  #echo "InitializeRequest"
+  #echo req
+  #echo ""
 
   var frame = client.outputStream.readFrame
   var message = frame.parseJson
 
   if message.isValid(ResponseMessage):
     let data = ResponseMessage(message)
-    # debug
-    echo "Reponce"
-    echo data["result"]
-    echo ""
+    let resultMessage= data["result"]
+    result = parseJson($resultMessage.get)
 
 proc initLspClient*(): LspClient =
   result = LspClient()
 
   var process = startProcess(nimlspPath)
 
-  result.processID = process.processID
+  result.process = process
   result.inputStream = process.inputStream()
   result.outputStream = process.outputStream()
 
 var client = initLspClient()
-client.sendInitializeRequest
+echo client.sendInitializeRequest
