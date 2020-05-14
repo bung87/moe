@@ -1,8 +1,5 @@
-import os, osproc, streams, json, options
-import jsonschema
-import baseprotocol
-
-include messages
+import os, osproc, streams, posix
+include protocol
 
 const
   jsonRpcversion = "2.0"
@@ -13,48 +10,189 @@ type LspClient = object
   inputStream: Stream
   outputStream: Stream
 
-proc sendInitializeRequest*(client: var LspClient): JsonNode =
-  let
-    capabilities = create(ClientCapabilities,
-      workspace = none(WorkspaceClientCapabilities),
-      textDocument = none(TextDocumentClientCapabilities),
-      experimental = none(JsonNode)
+proc initInitializeParams(): InitializeParams =
+  var 
+    clientInfo = ClientInfo(name: "moe", version: "0.1.9")
+
+    workspaceEditClientCapabilities = WorkspaceEditClientCapabilities(
+      documentChanges: false,
+      resourceOperations: @[],
+      failureHandling: FailureHandlingKind.undo,
+    )
+    didChangeConfigurationClientCapabilities = DidChangeConfigurationClientCapabilities(
+      dynamicRegistration: false
+    )
+    didChangeWatchedFilesClientCapabilities = DidChangeWatchedFilesClientCapabilities(
+      dynamicRegistration: false
+    )
+    workspaceSymbolClientCapabilities = WorkspaceSymbolClientCapabilities(
+      dynamicRegistration: false,
+      symbolKind: @[]
+    )
+    executeCommandClientCapabilities = ExecuteCommandClientCapabilities(
+      dynamicRegistration: false
+    )
+    textDocumentSyncClientCapabilities = TextDocumentSyncClientCapabilities(
+      dynamicRegistration: false,
+      willSave: false,
+      willSaveWaitUntil: false,
+      didSave: false,
     )
 
-    processId = processID(client.process)
-    rootPath = none(string)
-    rootUri = "./"
-    initializationOptions = none(JsonNode)
-    workspaceFolders = none(seq[WorkspaceFolder])
-    trace = none(string)
+    tagSupport = TagSupport(valueSet: @[])
+    completionItem = CompletionItem(
+      snippetSupport: false,
+      commitCharactersSupport: false,
+      documentationFormat: @[],
+      deprecatedSupport: false,
+      preselectSupport: false,
+      tagSupport: tagSupport
+    )
+    completionItemKindObj = CompletionItemKindObj(
+      valueSet: @[]
+    )
+    completionClientCapabilities = CompletionClientCapabilities(
+      dynamicRegistration: false,
+      completionItem: completionItem,
+      completionItemKind: completionItemKindObj,
+      contextSupport: false
+    )
+    hoverClientCapabilities = HoverClientCapabilities(
+      dynamicRegistration: false,
+      contentFormat: @[]
+    )
 
-  const id = 0
-  var req = create(RequestMessage, jsonRpcversion, id, "initialize", some(
-    create(InitializeParams,
-      processId,
-      rootPath,
-      rootUri,
-      initializationOptions,
-      capabilities,
-      trace,
-      workspaceFolders
-    ).JsonNode)
-  ).JsonNode
+    parameterInformation = ParameterInformation(
+      labelOffsetSupport: false
+    )
+    signatureInformation = SignatureInformation(
+      documentationFormat: @[],
+      parameterInformation: parameterInformation
+    )
+    signatureHelpClientCapabilities = SignatureHelpClientCapabilities(
+      dynamicRegistration: false,
+      signatureInformation: signatureInformation,
+      contextSupport: false,
+    )
 
-  client.inputStream.sendJson(req)
+    declarationClientCapabilities = DeclarationClientCapabilities(
+      dynamicRegistration: false,
+      linkSupport: false
+    )
+    definitionClientCapabilities = DefinitionClientCapabilities(
+      dynamicRegistration: false,
+      linkSupport: false
+    )
+    typeDefinitionClientCapabilities = TypeDefinitionClientCapabilities(
+      dynamicRegistration: false,
+      linkSupport: false
+    )
+    implementationClientCapabilities = ImplementationClientCapabilities(
+      dynamicRegistration: false,
+      linkSupport: false
+    )
+    referenceClientCapabilities = ReferenceClientCapabilities(
+      dynamicRegistration: false
+    )
 
-  # debug
-  #echo "InitializeRequest"
-  #echo req
-  #echo ""
+    symbolKindObj = SymbolKindObj(
+      valueSet: @[]
+    )
+    documentSymbolClientCapabilities = DocumentSymbolClientCapabilities(
+      dynamicRegistration: false,
+      symbolKind: symbolKindObj,
+      hierarchicalDocumentSymbolSupport: false
+    )
 
-  var frame = client.outputStream.readFrame
-  var message = frame.parseJson
+    codeActionKind = CodeActionKind(
+    valueSet: @[]
+    )
+    codeActionLiteralSupport = CodeActionLiteralSupport(
+      codeActionKind: codeActionKind,
+      isPreferredSupport: false
+    )
 
-  if message.isValid(ResponseMessage):
-    let data = ResponseMessage(message)
-    let resultMessage= data["result"]
-    result = parseJson($resultMessage.get)
+    codeActionClientCapabilities = CodeActionClientCapabilities(
+      dynamicRegistration: false,
+      codeActionLiteralSupport: codeActionLiteralSupport,
+      codeActionKind: codeActionKind,
+      isPreferredSupport: false
+    )
+
+    codeLensClientCapabilities = CodeLensClientCapabilities(
+      dynamicRegistration: false
+    )
+    documentLinkClientCapabilities = DocumentLinkClientCapabilities(
+      dynamicRegistration: false,
+      tooltipSupport: false
+    )
+    documentColorClientCapabilities = DocumentColorClientCapabilities(
+    dynamicRegistration: false
+    )
+    documentFormattingClientCapabilities = DocumentFormattingClientCapabilities(
+      dynamicRegistration: false
+    )
+    documentRangeFormattingClientCapabilities = DocumentRangeFormattingClientCapabilities(
+      dynamicRegistration: false
+    )
+    documentOnTypeFormattingClientCapabilities = DocumentOnTypeFormattingClientCapabilities(
+      dynamicRegistration: false
+    )
+    renameClientCapabilities = RenameClientCapabilities(
+      dynamicRegistration: false,
+      prepareSupport: false
+    )
+    publishDiabnosticsClientCapabilities = PublishDiabnosticsClientCapabilities(
+      dynamicRegistration: false,
+      rangeLimit: 0,
+      lineFoldingOnly: false
+    )
+
+    textDocumentClientCapabilities = TextDocumentClientCapabilities(
+      synchronization: textDocumentSyncClientCapabilities,
+      completion: completionClientCapabilities,
+      hover: hoverClientCapabilities,
+      signatureHelp: signatureHelpClientCapabilities,
+      declaration: declarationClientCapabilities,
+      definition: definitionClientCapabilities,
+      typeDefinition: typeDefinitionClientCapabilities,
+      implementation: implementationClientCapabilities,
+      references: referenceClientCapabilities,
+      documentHighlight: documentSymbolClientCapabilities,
+      documentSymbol: documentSymbolClientCapabilities,
+      codeAction: codeActionClientCapabilities,
+      codeLens: codeLensClientCapabilities,
+      documentLink: documentLinkClientCapabilities,
+      colorProvider: documentColorClientCapabilities,
+      formatting: documentFormattingClientCapabilities,
+      rangeFormatting: documentRangeFormattingClientCapabilities,
+      onTypeFormatting: documentOnTypeFormattingClientCapabilities,
+      rename: renameClientCapabilities,
+      publishDiagnostics: publishDiabnosticsClientCapabilities,
+      foldingRange: FoldingRangeClientCapabilities(),
+    )
+
+    workspace = Workspace(
+      applyEdit: false,
+      workspaceEdit: workspaceEditClientCapabilities,
+      didChangeConfiguration: didChangeConfigurationClientCapabilities,
+      didChangeWatchedFiles: didChangeWatchedFilesClientCapabilities,
+      symbol: workspaceSymbolClientCapabilities,
+      executeCommand: executeCommandClientCapabilities,
+      textDocument: textDocumentClientCapabilities,
+    )
+    capabilities = ClientCapabilities(workspace: workspace)
+
+  #result.processId = processID
+  result.clientInfo = clientInfo
+  result.rootPath = ""
+  result.rootUri = ""
+  result.capabilities = capabilities
+  result.trace = ""
+  result.workspaceFolders = @[]
+
+proc sendInitializeRequest*(client: var LspClient) =
+  var req = initInitializeParams()
 
 proc initLspClient*(): LspClient =
   result = LspClient()
@@ -66,4 +204,3 @@ proc initLspClient*(): LspClient =
   result.outputStream = process.outputStream()
 
 var client = initLspClient()
-echo client.sendInitializeRequest

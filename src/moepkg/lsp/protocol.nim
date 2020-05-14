@@ -231,7 +231,7 @@ type Workspace =  ref object
   symbol: WorkspaceSymbolClientCapabilities
   executeCommand: ExecuteCommandClientCapabilities
   textDocument: TextDocumentClientCapabilities
-  experimental: any
+  #experimental: any
 
 type ClientCapabilities = ref object
   workspace: Workspace
@@ -246,12 +246,12 @@ type ClientInfo = ref object
   name: string
   version: string
 
-type InitializeParams = ref object
-  processId: int or float
+type InitializeParams* = ref object
+  processId: int
   clientInfo: ClientInfo
   rootPath: string
   rootUri: string
-  initializationOptions: any
+  #initializationOptions: any
   capabilities: ClientCapabilities
   trace: string
   workspaceFolders: seq[WorkspaceFolder]
