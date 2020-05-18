@@ -1,9 +1,9 @@
-import os, osproc, streams, posix
+import os, osproc, streams, json, strutils
 include protocol
 
 const
   jsonRpcversion = "2.0"
-  nimlspPath = getHomeDir() & "/.nimble/bin/nimlsp"
+  nimlspPath = getHomeDir() & ".nimble/bin/nimlsp"
 
 type LspClient = object
   process: Process
@@ -12,8 +12,6 @@ type LspClient = object
 
 proc initInitializeParams(): InitializeParams =
   var 
-    clientInfo = ClientInfo(name: "moe", version: "0.1.9")
-
     workspaceEditClientCapabilities = WorkspaceEditClientCapabilities(
       documentChanges: false,
       resourceOperations: @[],
@@ -183,7 +181,10 @@ proc initInitializeParams(): InitializeParams =
     )
     capabilities = ClientCapabilities(workspace: workspace)
 
-  #result.processId = processID
+  let 
+    clientInfo = ClientInfo(name: "moe", version: "0.1.9")
+
+  result.processId = 0
   result.clientInfo = clientInfo
   result.rootPath = ""
   result.rootUri = ""
@@ -191,16 +192,44 @@ proc initInitializeParams(): InitializeParams =
   result.trace = ""
   result.workspaceFolders = @[]
 
+proc sendFrame(s: Stream, frame: string) =
+  s.write "Content-Length: " & $frame.len & "\r\n\r\n" & frame
+  s.flush
+
+proc sendJson(s: Stream, data: JsonNode) =
+  var frame = newStringOfCap(1024)
+  toUgly(frame, data)
+  echo frame
+  s.sendFrame(frame)
+  echo "send"
+
+proc readFrame*(s: Stream): string =
+  let
+    frame = string s.readLine
+    len = parseInt((frame.splitWhitespace)[1])
+  result = s.readStr(len)
+
 proc sendInitializeRequest*(client: var LspClient) =
-  var req = initInitializeParams()
+  var initializeParams = initInitializeParams()
+  initializeParams.processId = client.process.processID
+
+  let id = 0
+
+  var req = %*{
+    "jsonrpc": jsonRpcversion,
+    "id": id,
+    "method": "initialize",
+    "params": %initializeParams
+  }
+
+  client.inputStream.sendJson(req)
 
 proc initLspClient*(): LspClient =
   result = LspClient()
 
-  var process = startProcess(nimlspPath)
+  var process: Process
+  process = startProcess(nimlspPath)
 
   result.process = process
-  result.inputStream = process.inputStream()
-  result.outputStream = process.outputStream()
-
-var client = initLspClient()
+  result.inputStream = process.inputStream
+  result.outputStream = process.outputStream

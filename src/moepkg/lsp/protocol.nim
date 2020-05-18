@@ -64,42 +64,42 @@ type FailureHandlingKind = enum
   undo
   textOnlyTransactional
 
-type SymbolKindObj = ref object
+type SymbolKindObj = object
   valueSet: seq[SymbolKind]
 
-type WorkspaceSymbolClientCapabilities = ref object
+type WorkspaceSymbolClientCapabilities = object
   dynamicRegistration: bool
   symbolKind: seq[SymbolKindObj]
 
-type DidChangeWatchedFilesClientCapabilities = ref object
+type DidChangeWatchedFilesClientCapabilities = object
   dynamicRegistration: bool
 
-type DidChangeConfigurationClientCapabilities = ref object
+type DidChangeConfigurationClientCapabilities = object
   dynamicRegistration: bool
 
-type WorkspaceEditClientCapabilities = ref object
+type WorkspaceEditClientCapabilities = object
   documentChanges: bool
   resourceOperations: seq[ResourceOperationKind]
   failureHandling: FailureHandlingKind
 
-type ExecuteCommandClientCapabilities = ref object
+type ExecuteCommandClientCapabilities = object
   dynamicRegistration: bool
 
-type TextDocumentSyncClientCapabilities = ref object
+type TextDocumentSyncClientCapabilities = object
   dynamicRegistration: bool
   willSave: bool
   willSaveWaitUntil: bool
   didSave: bool
 
 type CompletionItemTag = int
-type TagSupport = ref object
+type TagSupport = object
   valueSet: seq[CompletionItemTag]
 
 type MarkupKind = enum
   plaintext
   markdown
 
-type CompletionItem = ref object
+type CompletionItem = object
   snippetSupport: bool
   commitCharactersSupport: bool
   documentationFormat: seq[MarkupKind]
@@ -107,100 +107,100 @@ type CompletionItem = ref object
   preselectSupport: bool
   tagSupport: TagSupport
 
-type CompletionItemKindObj = ref object
+type CompletionItemKindObj = object
   valueSet: seq[CompletionItemKind]
 
-type CompletionClientCapabilities = ref object
+type CompletionClientCapabilities = object
   dynamicRegistration: bool
   completionItem: CompletionItem
   completionItemKind: CompletionItemKindObj
   contextSupport: bool
 
-type HoverClientCapabilities = ref object
+type HoverClientCapabilities = object
   dynamicRegistration: bool
   contentFormat: seq[MarkupKind]
 
-type ParameterInformation = ref object
+type ParameterInformation = object
   labelOffsetSupport: bool
 
-type SignatureInformation = ref object
+type SignatureInformation = object
   documentationFormat: seq[MarkupKind]
   parameterInformation: ParameterInformation
 
-type SignatureHelpClientCapabilities = ref object
+type SignatureHelpClientCapabilities = object
   dynamicRegistration: bool
   signatureInformation: SignatureInformation
   contextSupport: bool
 
-type DeclarationClientCapabilities = ref object
+type DeclarationClientCapabilities = object
   dynamicRegistration: bool
   linkSupport: bool
 
-type DefinitionClientCapabilities = ref object
+type DefinitionClientCapabilities = object
   dynamicRegistration: bool
   linkSupport: bool
 
-type TypeDefinitionClientCapabilities = ref object
+type TypeDefinitionClientCapabilities = object
   dynamicRegistration: bool
   linkSupport: bool
 
-type ImplementationClientCapabilities= ref object
+type ImplementationClientCapabilities= object
   dynamicRegistration: bool
   linkSupport: bool
 
-type ReferenceClientCapabilities = ref object
+type ReferenceClientCapabilities = object
   dynamicRegistration: bool
 
-type DocumentSymbolClientCapabilities = ref object
+type DocumentSymbolClientCapabilities = object
   dynamicRegistration: bool
   symbolKind: SymbolKindObj
   hierarchicalDocumentSymbolSupport: bool
 
 ## TODO: Fix?
-type CodeActionKind = ref object
+type CodeActionKind = object
   valueSet: seq[string]
 
-type CodeActionLiteralSupport = ref object
+type CodeActionLiteralSupport = object
   codeActionKind: CodeActionKind
   isPreferredSupport: bool
 
-type CodeActionClientCapabilities = ref object
+type CodeActionClientCapabilities = object
   dynamicRegistration: bool
   codeActionLiteralSupport: CodeActionLiteralSupport
   codeActionKind:CodeActionKind
   isPreferredSupport: bool
 
-type CodeLensClientCapabilities = ref object
+type CodeLensClientCapabilities = object
   dynamicRegistration: bool
 
-type DocumentLinkClientCapabilities = ref object
+type DocumentLinkClientCapabilities = object
   dynamicRegistration: bool
   tooltipSupport: bool
 
-type DocumentColorClientCapabilities = ref object
+type DocumentColorClientCapabilities = object
   dynamicRegistration: bool
 
-type DocumentFormattingClientCapabilities = ref object
+type DocumentFormattingClientCapabilities = object
   dynamicRegistration: bool
 
-type DocumentRangeFormattingClientCapabilities = ref object
+type DocumentRangeFormattingClientCapabilities = object
   dynamicRegistration: bool
 
-type DocumentOnTypeFormattingClientCapabilities = ref object
+type DocumentOnTypeFormattingClientCapabilities = object
   dynamicRegistration: bool
 
-type RenameClientCapabilities = ref object
+type RenameClientCapabilities = object
   dynamicRegistration: bool
   prepareSupport: bool
 
-type PublishDiabnosticsClientCapabilities = ref object
+type PublishDiabnosticsClientCapabilities = object
   dynamicRegistration: bool
   rangeLimit: int
   lineFoldingOnly: bool
 
-type FoldingRangeClientCapabilities = ref object
+type FoldingRangeClientCapabilities = object
 
-type TextDocumentClientCapabilities = ref object
+type TextDocumentClientCapabilities = object
   synchronization: TextDocumentSyncClientCapabilities
   completion: CompletionClientCapabilities
   hover: HoverClientCapabilities
@@ -223,7 +223,7 @@ type TextDocumentClientCapabilities = ref object
   publishDiagnostics: PublishDiabnosticsClientCapabilities
   foldingRange: FoldingRangeClientCapabilities
 
-type Workspace =  ref object
+type Workspace =  object
   applyEdit: bool
   workspaceEdit: WorkspaceEditClientCapabilities
   didChangeConfiguration: DidChangeConfigurationClientCapabilities
@@ -233,20 +233,20 @@ type Workspace =  ref object
   textDocument: TextDocumentClientCapabilities
   #experimental: any
 
-type ClientCapabilities = ref object
+type ClientCapabilities = object
   workspace: Workspace
 
 type DocumentUri = string
 
-type WorkspaceFolder = ref object
+type WorkspaceFolder = object
   uri: DocumentUri
   name: string
 
-type ClientInfo = ref object
+type ClientInfo = object
   name: string
   version: string
 
-type InitializeParams* = ref object
+type InitializeParams* = object
   processId: int
   clientInfo: ClientInfo
   rootPath: string
