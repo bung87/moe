@@ -1,6 +1,6 @@
 import jsonschema
 
-import options, json
+import options, json, sequtils
 
 type DocumentUri = string
 
@@ -80,7 +80,7 @@ jsonSchema:
     # support 'create', 'rename' and 'delete' files and folders.
     #
     # @since 3.13.0
-    #resourceOperations?: ResourceOperationKind[]
+    resourceOperations?: ResourceOperationKind[]
     
     # The failure handling strategy of a client if applying the workspace edit
     # fails.
@@ -107,7 +107,7 @@ jsonSchema:
     # If this property is not present the client only supports
     # the symbol kinds from `File` to `Array` as defined in
     # the initial version of the protocol.
-    #valueSet?: SymbolKind[]
+    valueSet?: SymbolKind[]
 
   WorkspaceSymbolClientCapabilities:
     # Symbol request supports dynamic registration.
@@ -170,11 +170,11 @@ jsonSchema:
     # The client supports did save notifications.
     didSave?: bool
 
-  #TagSupportInCompletionItemInCompletionClientCapabilities:
+  TagSupportInCompletionItemInCompletionClientCapabilities:
     # The tags supported by the client.
-    #valueSet: CompletionItemTag[]
+    valueSet: CompletionItemTag[]
 
-  #CompletionItemKind:
+  CompletionItemKind:
     # The completion item kind values the client supports. When this
     # property exists the client also guarantees that it will
     # handle values outside its set gracefully and falls back
@@ -183,7 +183,7 @@ jsonSchema:
     # If this property is not present the client only supports
     # the completion items kinds from `Text` to `Reference` as defined in
     # the initial version of the protocol.
-    #valueSet?: CompletionItemKind[]
+    valueSet?: CompletionItemKind[]
 
   CompletionItemInCompletionClientCapabilities:
     # Client supports snippets as insert text.
@@ -199,7 +199,7 @@ jsonSchema:
       
     # Client supports the follow content formats for the documentation
     # property. The order describes the preferred format of the client.
-    #documentationFormat?: MarkupKind[]
+    documentationFormat?: MarkupKind[]
       
        # Client supports the deprecated property on a completion item.
     deprecatedSupport?: bool
@@ -235,12 +235,12 @@ jsonSchema:
     
     # Client supports the follow content formats for the content
     # property. The order describes the preferred format of the client.
-    #contentFormat?: MarkupKind[]
+    contentFormat?: MarkupKind[]
 
   #SignatureInformation:
     # Client supports the follow content formats for the documentation
     # property. The order describes the preferred format of the client.
-    #documentationFormat?: MarkupKind[]
+    documentationFormat?: MarkupKind[]
 
   ParameterInformation:
     # The client supports processing label offsets instead of a
@@ -317,7 +317,7 @@ jsonSchema:
     # Whether document highlight supports dynamic registration.
     dynamicRegistration?: bool
 
-  #SymbolKindInDocumentSymbolClientCapabilities:
+  SymbolKindInDocumentSymbolClientCapabilities:
     # The symbol kind values the client supports. When this
     # property exists the client also guarantees that it will
     # handle values outside its set gracefully and falls back
@@ -326,7 +326,7 @@ jsonSchema:
     # If this property is not present the client only supports
     # the symbol kinds from `File` to `Array` as defined in
     # the initial version of the protocol.
-    #valueSet?: SymbolKind[];
+    valueSet?: SymbolKind[];
 
   DocumentSymbolClientCapabilities:
     # Whether document symbol supports dynamic registration.
@@ -338,12 +338,12 @@ jsonSchema:
     # The client supports hierarchical document symbols.
     hierarchicalDocumentSymbolSupport?: bool
 
-  #CodeActionKind:
+  CodeActionKind:
     # The code action kind values the client supports. When this
     # property exists the client also guarantees that it will
     # handle values outside its set gracefully and falls back
     # to a default value when unknown.
-    #valueSet: CodeActionKind[]
+    valueSet: CodeActionKind[]
  
   #CodeActionLiteralSupport:
     # The code action kind is supported with the following value
@@ -402,10 +402,10 @@ jsonSchema:
     # @since version 3.12.0
     prepareSupport?: bool
 
-  #TagSupportInPublishDiagnosticsClientCapabilities:
+  TagSupportInPublishDiagnosticsClientCapabilities:
     # The tags supported by the client.
     # DiagnosticTag 1 or 2
-    #valueSet: int[]
+    valueSet: int[]
 
   PublishDiagnosticsClientCapabilities:
     # Whether the clients accepts diagnostics with related information.
@@ -544,4 +544,4 @@ jsonSchema:
     # trace: "off" or "messages" or "verbose"
     trace?: string
 
-    #workspaceFolders?: WorkspaceFolder[] or nil
+    workspaceFolders?: WorkspaceFolder[] or nil
