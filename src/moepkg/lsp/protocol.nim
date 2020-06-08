@@ -1,4 +1,33 @@
-type SymbolKind {.pure.} = enum
+import jsonschema
+
+import options, json
+
+type DocumentUri = string
+
+type ProgressToken = int or float or string
+
+type MarkupKind {.pure.} = enum
+  plaintext = 0
+  markdown = 1
+
+type ResourceOperationKind {.pure.} = enum
+  create = 0
+  rename = 1
+  delete = 2
+
+type FailureHandlingKind  {.pure.} = enum
+  abort = 0
+  transactional = 1
+  undo = 2
+  textOnlyTransactional = 3
+
+type CompletionItemTag {.pure.} = enum
+  # Render a completion as obsolete, usually using a strike-out.
+  Deprecated = 1
+
+#type CodeActionKind = string
+
+type SymbolKind {.pure.} = enum 
   File = 1
   Module = 2
   Namespace = 3
@@ -26,232 +55,493 @@ type SymbolKind {.pure.} = enum
   Operator = 25
   TypeParameter = 26
 
-type CompletionItemKind {.pure.} = enum
-  Text = 1
-  Method = 2
-  Function = 3
-  Constructor = 4
-  Field = 5
-  Variable = 6
-  Class = 7
-  Interface = 8
-  Module = 9
-  Property = 10
-  Unit = 11
-  Value = 12
-  Enum = 13
-  Keyword = 14
-  Snippet = 15
-  Color = 16
-  File = 17
-  Reference = 18
-  Folder = 19
-  EnumMember = 20
-  Constant = 21
-  Struct = 22
-  Event = 23
-  Operator = 24
-  TypeParameter = 25
+jsonSchema:
+  ClientInfo:
+    name: string
+    version?: string
 
-type ResourceOperationKind = enum
-  create
-  rename
-  delete
+  WorkspaceFolder:
+    # The associated URI for this workspace folder.
+    uri: DocumentUri
 
-type FailureHandlingKind = enum
-  abort
-  transactional
-  undo
-  textOnlyTransactional
+    # The name of the workspace folder. Used to refer to this
+    # workspace folder in the user interface.
+    name: string
 
-type SymbolKindObj = object
-  valueSet: seq[SymbolKind]
+  WorkDoneProgressParams:
+    # An optional token that a server can use to report work done progress.
+    workDoneToken?: ProgressToken
 
-type WorkspaceSymbolClientCapabilities = object
-  dynamicRegistration: bool
-  symbolKind: seq[SymbolKindObj]
+  WorkspaceEditClientCapabilities:
+    # The client supports versioned document changes in `WorkspaceEdit`s
+    documentChanges?: bool
+    
+    # The resource operations the client supports. Clients should at least
+    # support 'create', 'rename' and 'delete' files and folders.
+    #
+    # @since 3.13.0
+    #resourceOperations?: ResourceOperationKind[]
+    
+    # The failure handling strategy of a client if applying the workspace edit
+    # fails.
+    #
+    # @since 3.13.0
+    failureHandling?: FailureHandlingKind
 
-type DidChangeWatchedFilesClientCapabilities = object
-  dynamicRegistration: bool
+  DidChangeConfigurationClientCapabilities:
+    # Did change configuration notification supports dynamic registration.
+    dynamicRegistration: bool
 
-type DidChangeConfigurationClientCapabilities = object
-  dynamicRegistration: bool
+  DidChangeWatchedFilesClientCapabilities:
+    # Did change watched files notification supports dynamic registration. Please note
+    # that the current protocol doesn't support static configuration for file changes
+    # from the server side.
+    dynamicRegistration?: bool
 
-type WorkspaceEditClientCapabilities = object
-  documentChanges: bool
-  resourceOperations: seq[ResourceOperationKind]
-  failureHandling: FailureHandlingKind
+  #symbolKindInWorkspaceSymbolClientCapabilities:
+    # The symbol kind values the client supports. When this
+    # property exists the client also guarantees that it will
+    # handle values outside its set gracefully and falls back
+    # to a default value when unknown.
+    #
+    # If this property is not present the client only supports
+    # the symbol kinds from `File` to `Array` as defined in
+    # the initial version of the protocol.
+    #valueSet?: SymbolKind[]
 
-type ExecuteCommandClientCapabilities = object
-  dynamicRegistration: bool
+  WorkspaceSymbolClientCapabilities:
+    # Symbol request supports dynamic registration.
+    dynamicRegistration?: bool
 
-type TextDocumentSyncClientCapabilities = object
-  dynamicRegistration: bool
-  willSave: bool
-  willSaveWaitUntil: bool
-  didSave: bool
+    # Specific capabilities for the `SymbolKind` in the `workspace/symbol` request.
+    #symbolKind?: symbolKindInWorkspaceSymbolClientCapabilities
 
-type CompletionItemTag = int
-type TagSupport = object
-  valueSet: seq[CompletionItemTag]
+  ExecuteCommandClientCapabilities:
+    # Execute command supports dynamic registration.
+    dynamicRegistration?: bool
 
-type MarkupKind = enum
-  plaintext
-  markdown
+  WorkspaceInClientCapabilities:
+    # The client supports applying batch edits
+    # to the workspace by supporting the request
+    # 'workspace/applyEdit'
+    applyEdit?: bool
 
-type CompletionItem = object
-  snippetSupport: bool
-  commitCharactersSupport: bool
-  documentationFormat: seq[MarkupKind]
-  deprecatedSupport: bool
-  preselectSupport: bool
-  tagSupport: TagSupport
+    # Capabilities specific to `WorkspaceEdit`s
+    workspaceEdit?: WorkspaceEditClientCapabilities
 
-type CompletionItemKindObj = object
-  valueSet: seq[CompletionItemKind]
+    # Capabilities specific to the `workspace/didChangeConfiguration` notification.
+    didChangeConfiguration?: DidChangeConfigurationClientCapabilities
 
-type CompletionClientCapabilities = object
-  dynamicRegistration: bool
-  completionItem: CompletionItem
-  completionItemKind: CompletionItemKindObj
-  contextSupport: bool
+    # Capabilities specific to the `workspace/didChangeWatchedFiles` notification.
+    didChangeWatchedFiles?: DidChangeWatchedFilesClientCapabilities
 
-type HoverClientCapabilities = object
-  dynamicRegistration: bool
-  contentFormat: seq[MarkupKind]
+    # Capabilities specific to the `workspace/symbol` request.
+    symbol?: WorkspaceSymbolClientCapabilities
+    
+    # Capabilities specific to the `workspace/executeCommand` request.
+    executeCommand?: ExecuteCommandClientCapabilities
+    
+    # The client has support for workspace folders.
+    # Since 3.6.0
+    workspaceFolders?: bool
+    
+    # The client supports `workspace/configuration` requests.
+    # Since 3.6.0
+    configuration?: bool
 
-type ParameterInformation = object
-  labelOffsetSupport: bool
+  WindowInClientCapabilities:
+    # Whether client supports handling progress notifications. If set servers are allowed to
+    # report in `workDoneProgress` property in the request specific server capabilities.
+    # Since 3.15.0
+    workDoneProgress?: bool
 
-type SignatureInformation = object
-  documentationFormat: seq[MarkupKind]
-  parameterInformation: ParameterInformation
+  TextDocumentSyncClientCapabilities:
+    # Whether text document synchronization supports dynamic registration.
+    dynamicRegistration?: bool
+    
+    # The client supports sending will save notifications.
+    willSave?: bool
+    
+    # The client supports sending a will save request and
+    # waits for a response providing text edits which will
+    # be applied to the document before it is saved.
+    willSaveWaitUntil?: bool
+    
+    # The client supports did save notifications.
+    didSave?: bool
 
-type SignatureHelpClientCapabilities = object
-  dynamicRegistration: bool
-  signatureInformation: SignatureInformation
-  contextSupport: bool
+  #TagSupportInCompletionItemInCompletionClientCapabilities:
+    # The tags supported by the client.
+    #valueSet: CompletionItemTag[]
 
-type DeclarationClientCapabilities = object
-  dynamicRegistration: bool
-  linkSupport: bool
+  #CompletionItemKind:
+    # The completion item kind values the client supports. When this
+    # property exists the client also guarantees that it will
+    # handle values outside its set gracefully and falls back
+    # to a default value when unknown.
+    #
+    # If this property is not present the client only supports
+    # the completion items kinds from `Text` to `Reference` as defined in
+    # the initial version of the protocol.
+    #valueSet?: CompletionItemKind[]
 
-type DefinitionClientCapabilities = object
-  dynamicRegistration: bool
-  linkSupport: bool
+  CompletionItemInCompletionClientCapabilities:
+    # Client supports snippets as insert text.
+    #
+    # A snippet can define tab stops and placeholders with `$1`, `$2`
+    # and `${3:foo}`. `$0` defines the final tab stop, it defaults to
+    # the end of the snippet. Placeholders with equal identifiers are linked,
+    # that is typing in one will update others too.
+    snippetSupport?: bool
 
-type TypeDefinitionClientCapabilities = object
-  dynamicRegistration: bool
-  linkSupport: bool
+    # Client supports commit characters on a completion item.
+    commitCharactersSupport?: bool
+      
+    # Client supports the follow content formats for the documentation
+    # property. The order describes the preferred format of the client.
+    #documentationFormat?: MarkupKind[]
+      
+       # Client supports the deprecated property on a completion item.
+    deprecatedSupport?: bool
+      
+    # Client supports the preselect property on a completion item.
+    preselectSupport?: bool
+      
+    # Client supports the tag property on a completion item. Clients supporting
+    # tags have to handle unknown tags gracefully. Clients especially need to
+    # preserve unknown tags when sending a completion item back to the server in
+    # a resolve call.
+    #
+    # @since 3.15.0
+    #tagSupport?: TagSupportInCompletionItemInCompletionClientCapabilities
+    
+    #completionItemKind?: CompletionItemKind
 
-type ImplementationClientCapabilities= object
-  dynamicRegistration: bool
-  linkSupport: bool
+  CompletionClientCapabilities:
+    # Whether completion supports dynamic registration.
+    dynamicRegistration?: bool
+    
+    # The client supports the following `CompletionItem` specific
+    # capabilities.
+    completionItem?: CompletionItemInCompletionClientCapabilities
 
-type ReferenceClientCapabilities = object
-  dynamicRegistration: bool
+    # The client supports to send additional context information for a
+    # `textDocument/completion` request.
+    ontextSupport?: bool
 
-type DocumentSymbolClientCapabilities = object
-  dynamicRegistration: bool
-  symbolKind: SymbolKindObj
-  hierarchicalDocumentSymbolSupport: bool
+  HoverClientCapabilities:
+    # Whether hover supports dynamic registration.
+    dynamicRegistration?: bool
+    
+    # Client supports the follow content formats for the content
+    # property. The order describes the preferred format of the client.
+    #contentFormat?: MarkupKind[]
 
-## TODO: Fix?
-type CodeActionKind = object
-  valueSet: seq[string]
+  #SignatureInformation:
+    # Client supports the follow content formats for the documentation
+    # property. The order describes the preferred format of the client.
+    #documentationFormat?: MarkupKind[]
 
-type CodeActionLiteralSupport = object
-  codeActionKind: CodeActionKind
-  isPreferredSupport: bool
+  ParameterInformation:
+    # The client supports processing label offsets instead of a
+    # simple label string.
+    #
+    # @since 3.14.0
+    labelOffsetSupport?: bool
 
-type CodeActionClientCapabilities = object
-  dynamicRegistration: bool
-  codeActionLiteralSupport: CodeActionLiteralSupport
-  codeActionKind:CodeActionKind
-  isPreferredSupport: bool
+  SignatureHelpClientCapabilities:
+    # Whether signature help supports dynamic registration.
+    dynamicRegistration?: bool
 
-type CodeLensClientCapabilities = object
-  dynamicRegistration: bool
+    # The client supports the following `SignatureInformation`
+    # specific properties.
+    #signatureInformation?: SignatureInformation
 
-type DocumentLinkClientCapabilities = object
-  dynamicRegistration: bool
-  tooltipSupport: bool
+    # Client capabilities specific to parameter information.
+    parameterInformation?: ParameterInformation
 
-type DocumentColorClientCapabilities = object
-  dynamicRegistration: bool
+    # The client supports to send additional context information for a
+    # `textDocument/signatureHelp` request. A client that opts into
+    # contextSupport will also support the `retriggerCharacters` on
+    # `SignatureHelpOptions`.
+    #
+    # @since 3.15.0
+    contextSupport?: bool
 
-type DocumentFormattingClientCapabilities = object
-  dynamicRegistration: bool
+  DeclarationClientCapabilities:
+    # Whether declaration supports dynamic registration. If this is set to `true`
+    # the client supports the new `DeclarationRegistrationOptions` return value
+    # for the corresponding server capability as well.
+    #/
+    dynamicRegistration?: bool
+    
+    # The client supports additional metadata in the form of declaration links.
+    linkSupport?: bool
 
-type DocumentRangeFormattingClientCapabilities = object
-  dynamicRegistration: bool
+  DefinitionClientCapabilities:
+    # Whether definition supports dynamic registration.
+    dynamicRegistration?: bool
+    
+    # The client supports additional metadata in the form of definition links.
+    #
+    # @since 3.14.0
+    linkSupport?: bool
 
-type DocumentOnTypeFormattingClientCapabilities = object
-  dynamicRegistration: bool
+  TypeDefinitionClientCapabilities:
+    # Whether implementation supports dynamic registration. If this is set to `true`
+    # the client supports the new `TypeDefinitionRegistrationOptions` return value
+    # for the corresponding server capability as well.
+    dynamicRegistration?: bool
+   
+    # The client supports additional metadata in the form of definition links.
+    #
+    # @since 3.14.0
+    linkSupport?: bool
 
-type RenameClientCapabilities = object
-  dynamicRegistration: bool
-  prepareSupport: bool
+  ImplementationClientCapabilities:
+    # Whether implementation supports dynamic registration. If this is set to `true`
+    # the client supports the new `ImplementationRegistrationOptions` return value
+    # for the corresponding server capability as well.
+    dynamicRegistration?: bool
+    
+    # The client supports additional metadata in the form of definition links.
+    #
+    # @since 3.14.0
+    linkSupport?: bool
 
-type PublishDiabnosticsClientCapabilities = object
-  dynamicRegistration: bool
-  rangeLimit: int
-  lineFoldingOnly: bool
+  ReferenceClientCapabilities:
+    # Whether references supports dynamic registration.
+    dynamicRegistration?: bool
 
-type FoldingRangeClientCapabilities = object
+  DocumentHighlightClientCapabilities:
+    # Whether document highlight supports dynamic registration.
+    dynamicRegistration?: bool
 
-type TextDocumentClientCapabilities = object
-  synchronization: TextDocumentSyncClientCapabilities
-  completion: CompletionClientCapabilities
-  hover: HoverClientCapabilities
-  signatureHelp: SignatureHelpClientCapabilities
-  declaration: DeclarationClientCapabilities
-  definition: DefinitionClientCapabilities
-  typeDefinition: TypeDefinitionClientCapabilities
-  implementation: ImplementationClientCapabilities
-  references: ReferenceClientCapabilities
-  documentHighlight: DocumentSymbolClientCapabilities
-  documentSymbol: DocumentSymbolClientCapabilities
-  codeAction: CodeActionClientCapabilities
-  codeLens: CodeLensClientCapabilities
-  documentLink: DocumentLinkClientCapabilities
-  colorProvider: DocumentColorClientCapabilities
-  formatting: DocumentFormattingClientCapabilities
-  rangeFormatting: DocumentRangeFormattingClientCapabilities
-  onTypeFormatting: DocumentOnTypeFormattingClientCapabilities
-  rename: RenameClientCapabilities
-  publishDiagnostics: PublishDiabnosticsClientCapabilities
-  foldingRange: FoldingRangeClientCapabilities
+  #SymbolKindInDocumentSymbolClientCapabilities:
+    # The symbol kind values the client supports. When this
+    # property exists the client also guarantees that it will
+    # handle values outside its set gracefully and falls back
+    # to a default value when unknown.
+    #
+    # If this property is not present the client only supports
+    # the symbol kinds from `File` to `Array` as defined in
+    # the initial version of the protocol.
+    #valueSet?: SymbolKind[];
 
-type Workspace =  object
-  applyEdit: bool
-  workspaceEdit: WorkspaceEditClientCapabilities
-  didChangeConfiguration: DidChangeConfigurationClientCapabilities
-  didChangeWatchedFiles: DidChangeWatchedFilesClientCapabilities
-  symbol: WorkspaceSymbolClientCapabilities
-  executeCommand: ExecuteCommandClientCapabilities
-  textDocument: TextDocumentClientCapabilities
-  #experimental: any
+  DocumentSymbolClientCapabilities:
+    # Whether document symbol supports dynamic registration.
+    dynamicRegistration?: bool
 
-type ClientCapabilities = object
-  workspace: Workspace
+    # Specific capabilities for the `SymbolKind` in the `textDocument/documentSymbol` request.
+    #symbolKind?: SymbolKindInDocumentSymbolClientCapabilities
 
-type DocumentUri = string
+    # The client supports hierarchical document symbols.
+    hierarchicalDocumentSymbolSupport?: bool
 
-type WorkspaceFolder = object
-  uri: DocumentUri
-  name: string
+  #CodeActionKind:
+    # The code action kind values the client supports. When this
+    # property exists the client also guarantees that it will
+    # handle values outside its set gracefully and falls back
+    # to a default value when unknown.
+    #valueSet: CodeActionKind[]
+ 
+  #CodeActionLiteralSupport:
+    # The code action kind is supported with the following value
+    # set.
+    #codeActionKind: CodeActionKind
 
-type ClientInfo = object
-  name: string
-  version: string
+  CodeActionClientCapabilities:
+    # Whether code action supports dynamic registration.
+    dynamicRegistration?: bool
+    
+    # The client supports code action literals as a valid
+    # response of the `textDocument/codeAction` request.
+    #
+    # @since 3.8.0
+    #codeActionLiteralSupport?: CodeActionLiteralSupport
+   
+    # Whether code action supports the `isPreferred` property.
+    # @since 3.15.0
+    isPreferredSupport?: bool
 
-type InitializeParams* = object
-  processId: int
-  clientInfo: ClientInfo
-  rootPath: string
-  rootUri: string
-  #initializationOptions: any
-  capabilities: ClientCapabilities
-  trace: string
-  workspaceFolders: seq[WorkspaceFolder]
+  CodeLensClientCapabilities:
+    # Whether code lens supports dynamic registration.
+    dynamicRegistration?: bool
+#
+  DocumentLinkClientCapabilities:
+    # Whether document link supports dynamic registration.
+    dynamicRegistration?: bool
+    
+    # Whether the client supports the `tooltip` property on `DocumentLink`.
+    # @since 3.15.0
+    tooltipSupport?: bool
+
+  DocumentColorClientCapabilities:
+    # Whether document color supports dynamic registration.
+    dynamicRegistration?: bool
+
+  DocumentFormattingClientCapabilities:
+    # Whether formatting supports dynamic registration.
+    dynamicRegistration?: bool
+
+  DocumentRangeFormattingClientCapabilities:
+    # Whether formatting supports dynamic registration.
+    dynamicRegistration?: bool
+
+  DocumentOnTypeFormattingClientCapabilities:
+    # Whether on type formatting supports dynamic registration.
+    dynamicRegistration?: bool
+
+  RenameClientCapabilities:
+    # Whether rename supports dynamic registration.
+    dynamicRegistration?: bool
+    
+    # Client supports testing for validity of rename operations
+    # before execution.
+    #
+    # @since version 3.12.0
+    prepareSupport?: bool
+
+  #TagSupportInPublishDiagnosticsClientCapabilities:
+    # The tags supported by the client.
+    # DiagnosticTag 1 or 2
+    #valueSet: int[]
+
+  PublishDiagnosticsClientCapabilities:
+    # Whether the clients accepts diagnostics with related information.
+    relatedInformation?: bool
+
+    # Client supports the tag property to provide meta data about a diagnostic.
+    # Clients supporting tags have to handle unknown tags gracefully.
+    #
+    # @since 3.15.0
+    #tagSupport?: TagSupportInPublishDiagnosticsClientCapabilities
+
+    # Whether the client interprets the version property of the
+    # `textDocument/publishDiagnostics` notification's parameter.
+    #
+    # @since 3.15.0
+    versionSupport?: bool
+
+  FoldingRangeClientCapabilities:
+    # Whether implementation supports dynamic registration for folding range providers. If this is set to `true`
+    # the client supports the new `FoldingRangeRegistrationOptions` return value for the corresponding server
+    # capability as well.
+    dynamicRegistration?: bool
+    # The maximum number of folding ranges that the client prefers to receive per document. The value serves as a
+    # hint, servers are free to follow the limit.
+    rangeLimit?: int or float
+    # If set, the client signals that it only supports folding complete lines. If set, client will
+    # ignore specified `startCharacter` and `endCharacter` properties in a FoldingRange.
+    lineFoldingOnly?: bool
+
+  SelectionRangeClientCapabilities:
+    # Whether implementation supports dynamic registration for selection range providers. If this is set to `true`
+    # the client supports the new `SelectionRangeRegistrationOptions` return value for the corresponding server
+    # capability as well.
+    dynamicRegistration?: bool
+
+  TextDocumentClientCapabilities:
+    synchronization?: TextDocumentSyncClientCapabilities
+
+    # Capabilities specific to the `textDocument/completion` request.
+    completion?: CompletionClientCapabilities
+
+    # Capabilities specific to the `textDocument/hover` request.
+    hover?: HoverClientCapabilities
+
+    # Capabilities specific to the `textDocument/signatureHelp` request.
+    signatureHelp?: SignatureHelpClientCapabilities
+    
+    # Capabilities specific to the `textDocument/declaration` request.
+    # @since 3.14.0
+    declaration?: DeclarationClientCapabilities
+    
+    # Capabilities specific to the `textDocument/definition` request.
+    definition?: DefinitionClientCapabilities
+    
+    # Capabilities specific to the `textDocument/typeDefinition` request.
+    # @since 3.6.0
+    typeDefinition?: TypeDefinitionClientCapabilities
+    
+    # Capabilities specific to the `textDocument/implementation` request.
+    # @since 3.6.0
+    implementation?: ImplementationClientCapabilities
+    
+    # Capabilities specific to the `textDocument/references` request.
+    references?: ReferenceClientCapabilities
+    
+    # Capabilities specific to the `textDocument/documentHighlight` request.
+    documentHighlight?: DocumentHighlightClientCapabilities
+    
+    # Capabilities specific to the `textDocument/documentSymbol` request.
+    documentSymbol?: DocumentSymbolClientCapabilities
+    
+    # Capabilities specific to the `textDocument/codeAction` request.
+    codeAction?: CodeActionClientCapabilities
+    
+    # Capabilities specific to the `textDocument/codeLens` request.
+    codeLens?: CodeLensClientCapabilities
+    
+    # Capabilities specific to the `textDocument/documentLink` request.
+    documentLink?: DocumentLinkClientCapabilities
+    
+    # Capabilities specific to the `textDocument/documentColor` and the
+    # `textDocument/colorPresentation` request.
+    # @since 3.6.0
+    colorProvider?: DocumentColorClientCapabilities
+    
+    # Capabilities specific to the `textDocument/formatting` request.
+    formatting?: DocumentFormattingClientCapabilities
+    
+    # Capabilities specific to the `textDocument/rangeFormatting` request.
+    rangeFormatting?: DocumentRangeFormattingClientCapabilities
+    
+    # Capabilities specific to the `textDocument/onTypeFormatting` request.
+    onTypeFormatting?: DocumentOnTypeFormattingClientCapabilities
+    
+    # Capabilities specific to the `textDocument/rename` request.
+    rename?: RenameClientCapabilities
+    
+    # Capabilities specific to the `textDocument/publishDiagnostics` notification.
+    publishDiagnostics?: PublishDiagnosticsClientCapabilities
+    
+     # Capabilities specific to the `textDocument/foldingRange` request.
+     # @since 3.10.0
+    foldingRange?: FoldingRangeClientCapabilities
+    
+     # Capabilities specific to the `textDocument/selectionRange` request.
+     # @since 3.15.0
+    selectionRange?: SelectionRangeClientCapabilities
+
+  ClientCapabilities:
+    # Workspace specific client capabilities.
+    workspace?: WorkspaceInClientCapabilities
+
+    # Text document specific client capabilities.
+    textDocument?: TextDocumentClientCapabilities
+
+    # Window specific client capabilities.
+    window?: WindowInClientCapabilities
+
+    # Experimental client capabilities.
+    experimental?: any
+
+
+  InitializeParams extends WorkDoneProgressParams:
+    processId: int or float or nil
+
+    clientInfo?: ClientInfo
+
+    rootPath?: string or nil
+
+    rootUri: DocumentUri or nil
+
+    initializationOptions?: any
+
+    capabilities: ClientCapabilities
+
+    # trace: "off" or "messages" or "verbose"
+    trace?: string
+
+    #workspaceFolders?: WorkspaceFolder[] or nil
