@@ -2,10 +2,6 @@ import jsonschema
 
 import options, json, sequtils
 
-type DocumentUri = string
-
-type ProgressToken = int or float or string
-
 type MarkupKind {.pure.} = enum
   plaintext = 0
   markdown = 1
@@ -56,13 +52,22 @@ type SymbolKind {.pure.} = enum
   TypeParameter = 26
 
 jsonSchema:
+  Message:
+    jsonrpc: string
+
+  RequestMessage extends Message:
+    id: int or float or string
+    "method": string
+    params?: any[] or any
+
   ClientInfo:
     name: string
     version?: string
 
   WorkspaceFolder:
     # The associated URI for this workspace folder.
-    uri: DocumentUri
+    # This is DocumentUri
+    uri: string
 
     # The name of the workspace folder. Used to refer to this
     # workspace folder in the user interface.
@@ -70,7 +75,8 @@ jsonSchema:
 
   WorkDoneProgressParams:
     # An optional token that a server can use to report work done progress.
-    workDoneToken?: ProgressToken
+    # This is ProgressToken
+    workDoneToken?: int or string or float
 
   WorkspaceEditClientCapabilities:
     # The client supports versioned document changes in `WorkspaceEdit`s
@@ -98,7 +104,7 @@ jsonSchema:
     # from the server side.
     dynamicRegistration?: bool
 
-  #symbolKindInWorkspaceSymbolClientCapabilities:
+  symbolKindWorkspaceSymbolClientCapabilities:
     # The symbol kind values the client supports. When this
     # property exists the client also guarantees that it will
     # handle values outside its set gracefully and falls back
@@ -114,13 +120,13 @@ jsonSchema:
     dynamicRegistration?: bool
 
     # Specific capabilities for the `SymbolKind` in the `workspace/symbol` request.
-    #symbolKind?: symbolKindInWorkspaceSymbolClientCapabilities
+    symbolKind?: symbolKindWorkspaceSymbolClientCapabilities
 
   ExecuteCommandClientCapabilities:
     # Execute command supports dynamic registration.
     dynamicRegistration?: bool
 
-  WorkspaceInClientCapabilities:
+  WorkspaceClientCapabilities:
     # The client supports applying batch edits
     # to the workspace by supporting the request
     # 'workspace/applyEdit'
@@ -149,7 +155,7 @@ jsonSchema:
     # Since 3.6.0
     configuration?: bool
 
-  WindowInClientCapabilities:
+  WindowClientCapabilities:
     # Whether client supports handling progress notifications. If set servers are allowed to
     # report in `workDoneProgress` property in the request specific server capabilities.
     # Since 3.15.0
@@ -170,7 +176,7 @@ jsonSchema:
     # The client supports did save notifications.
     didSave?: bool
 
-  TagSupportInCompletionItemInCompletionClientCapabilities:
+  TagSupportCompletionItemCompletionClientCapabilities:
     # The tags supported by the client.
     valueSet: CompletionItemTag[]
 
@@ -185,7 +191,7 @@ jsonSchema:
     # the initial version of the protocol.
     valueSet?: CompletionItemKind[]
 
-  CompletionItemInCompletionClientCapabilities:
+  CompletionItemCompletionClientCapabilities:
     # Client supports snippets as insert text.
     #
     # A snippet can define tab stops and placeholders with `$1`, `$2`
@@ -213,9 +219,9 @@ jsonSchema:
     # a resolve call.
     #
     # @since 3.15.0
-    #tagSupport?: TagSupportInCompletionItemInCompletionClientCapabilities
+    tagSupport?: TagSupportCompletionItemCompletionClientCapabilities
     
-    #completionItemKind?: CompletionItemKind
+    completionItemKind?: CompletionItemKind
 
   CompletionClientCapabilities:
     # Whether completion supports dynamic registration.
@@ -223,7 +229,7 @@ jsonSchema:
     
     # The client supports the following `CompletionItem` specific
     # capabilities.
-    completionItem?: CompletionItemInCompletionClientCapabilities
+    completionItem?: CompletionItemCompletionClientCapabilities
 
     # The client supports to send additional context information for a
     # `textDocument/completion` request.
@@ -317,7 +323,7 @@ jsonSchema:
     # Whether document highlight supports dynamic registration.
     dynamicRegistration?: bool
 
-  SymbolKindInDocumentSymbolClientCapabilities:
+  SymbolKindDocumentSymbolClientCapabilities:
     # The symbol kind values the client supports. When this
     # property exists the client also guarantees that it will
     # handle values outside its set gracefully and falls back
@@ -402,7 +408,7 @@ jsonSchema:
     # @since version 3.12.0
     prepareSupport?: bool
 
-  TagSupportInPublishDiagnosticsClientCapabilities:
+  TagSupportPublishDiagnosticsClientCapabilities:
     # The tags supported by the client.
     # DiagnosticTag 1 or 2
     valueSet: int[]
@@ -415,7 +421,7 @@ jsonSchema:
     # Clients supporting tags have to handle unknown tags gracefully.
     #
     # @since 3.15.0
-    #tagSupport?: TagSupportInPublishDiagnosticsClientCapabilities
+    tagSupport?: TagSupportPublishDiagnosticsClientCapabilities
 
     # Whether the client interprets the version property of the
     # `textDocument/publishDiagnostics` notification's parameter.
@@ -516,17 +522,16 @@ jsonSchema:
 
   ClientCapabilities:
     # Workspace specific client capabilities.
-    workspace?: WorkspaceInClientCapabilities
+    workspace?: WorkspaceClientCapabilities
 
     # Text document specific client capabilities.
     textDocument?: TextDocumentClientCapabilities
 
     # Window specific client capabilities.
-    window?: WindowInClientCapabilities
+    window?: WindowClientCapabilities
 
     # Experimental client capabilities.
     experimental?: any
-
 
   InitializeParams extends WorkDoneProgressParams:
     processId: int or float or nil
@@ -535,7 +540,8 @@ jsonSchema:
 
     rootPath?: string or nil
 
-    rootUri: DocumentUri or nil
+    # rootUri: DocumentUri or nil
+    rootUri: string or nil
 
     initializationOptions?: any
 
