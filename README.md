@@ -1,13 +1,13 @@
-[![Build Status](https://travis-ci.org/fox0430/moe.svg?branch=master)](https://travis-ci.org/fox0430/moe)
+[![Build](https://github.com/fox0430/moe/workflows/Build/badge.svg)](https://github.com/fox0430/moe/actions)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ## moe
 
 A command line based editor inspired by vi/vim written in Nim.
  
-This project's goal is a very customizable, high productivity, high performance and funny animation editor.
+This project's goal is a very customizable, high productivity, user friendly, high performance and funny animation editor.
 
-![moe](https://user-images.githubusercontent.com/15966436/77930934-73db0700-72e6-11ea-81e9-f39c4e8bb450.png)
+![moe](https://user-images.githubusercontent.com/15966436/93508284-5fa0ca00-f959-11ea-8282-d64f540e0c54.png)
 
 ## Features
 
@@ -23,9 +23,13 @@ This project's goal is a very customizable, high productivity, high performance 
 
 - Infinite undo/redo
 
-- Syntax highlighting (Nim, C, C++, C#, Java, Yaml)
+- Syntax highlighting (Nim, C, C++, C#, Java, Yaml, JavaScript, Python)
 
-- Configuration file
+- Auto-complete
+
+- Configuration file (TOML)
+
+- Configuration mode (Incomplete)
 
 - Live reload of configuration file
 
@@ -37,29 +41,35 @@ This project's goal is a very customizable, high productivity, high performance 
 
 - Simple file manager
 
+- Indentation lines
+
 - Auto close/delete paren
 
 - Simple auto indent
 
-- Real time search
+- Incremental search
 
 - Auto save
 
 - Suggestions in ex mode
 
-- Popup window
-
-- Color themes
+- VSCode themes
 
 - Build on save
 
 - Work space
 
-- Multiple status bar
+- Multiple status line
+
+- QuickRun
+
+- Automatic backups
+
+- Highlight current words
+
+- Highlight/Delete trailing spaces
 
 ## Planned features
-
-- Configuration mode
 
 - Supports regular expression and PEG
 
@@ -68,8 +78,6 @@ This project's goal is a very customizable, high productivity, high performance 
 - Window management
 
 - Syntax checker
-
-- Auto-complete
 
 - Snippets
 
@@ -97,11 +105,22 @@ This project's goal is a very customizable, high productivity, high performance 
 
 ## Install
 
-```sh
-nimble install moe
-```
-Check [detail](https://github.com/fox0430/moe/blob/develop/documents/overview.md)
+### Requires
 
+- Nim 1.4.2 or higher
+
+- ncurses
+
+- xclip (Option on GNU/Linux)
+
+```sh
+# Latest released version
+nimble install moe
+# Latest developmental state inside Github repository
+nimble install moe@#head
+```
+
+Check [detail](https://github.com/fox0430/moe/blob/develop/documents/overview.md)
 ## Usage
 [Documents](https://github.com/fox0430/moe/blob/develop/documents/index.md)
 
@@ -111,6 +130,12 @@ And one more, it comes from the Japanese slang 萌え(moe).
 
 ## Contributing, bug reports, requests
 Welcome❤
+
+## Community
+
+Ask me anything!
+
+ - [Discord](https://discord.gg/UaJPnCF)
 
 ## License
 

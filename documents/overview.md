@@ -7,8 +7,10 @@ Currently you can use normal mode, visual mode, replace mode, insert mode, ex mo
 # Install and compile
 
 ## Requires
-- Nim 1.0 or higher
-- ncurses (ncursesw)
+- Nim 1.4.2 or higher
+- ncurses
+
+### Install
 
 I recommend using nimble to install:
 
@@ -28,5 +30,46 @@ If you are running Linux Ubuntu, or a distribution based on Ubuntu, you will lik
 
 ```
 $ sudo apt install libncurses5-dev libncursesw5-dev
-$ sudo ln -s /lib/x86_64-linux-gnu/libncursesw.so.5 /lib/x86_64-linux-gnu/libncursesw.so
+$ nimble install moe
+```
+
+Fedora
+
+```
+$ sudo dnf install ncurses-devel
+$ nimble install moe
+```
+
+### Debug build
+```
+$ cd moe
+$ nimble build
+```
+
+### Release build
+```
+$ cd moe
+$ nimble release
+```
+
+# Test
+
+## Unit test
+```
+nimble test
+```
+
+## Integration test
+
+### Requires
+
+[abduco](https://github.com/martanne/abduco)
+
+[shpec](https://github.com/rylnd/shpec)
+
+### Run integration test
+```
+cd moe
+nimble install
+shpec ./shpec.sh
 ```

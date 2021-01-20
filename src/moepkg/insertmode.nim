@@ -1,174 +1,83 @@
-import deques, strutils, strformat, sequtils, terminal, macros
-from os import execShellCmd
-import ui, editorstatus, gapbuffer, unicodeext, undoredostack, window, movement, editor, bufferstatus
+import terminal, times, options
+import ui, editorstatus, gapbuffer, unicodetext, undoredostack, window,
+       movement, editor, bufferstatus, suggestionwindow, settings
 
-proc correspondingCloseParen(c: char): char =
-  case c
-  of '(': return ')'
-  of '{': return '}'
-  of '[': return ']'
-  of '"': return  '\"'
-  of '\'': return '\''
-  else: doAssert(false, fmt"Invalid parentheses: {c}")
-
-proc isOpenParen(ch: char): bool = ch in {'(', '{', '[', '\"', '\''}
-
-proc isCloseParen(ch: char): bool = ch in {')', '}', ']', '\"', '\''}
-
-proc nextRuneIs(bufStatus: var BufferStatus, windowNode: WindowNode, c: Rune): bool =
-  if bufStatus.buffer[windowNode.currentLine].len > windowNode.currentColumn:
-    result = bufStatus.buffer[windowNode.currentLine][windowNode.currentColumn] == c
-
-proc insertCharacter*(bufStatus: var BufferStatus, windowNode: WindowNode, autoCloseParen: bool, c: Rune) =
-  let oldLine = bufStatus.buffer[windowNode.currentLine]
-  var newLine = bufStatus.buffer[windowNode.currentLine]
-  template insert = newLine.insert(c, windowNode.currentColumn)
-  template moveRight = inc(windowNode.currentColumn)
-  template inserted =
-    if oldLine != newLine: bufStatus.buffer[windowNode.currentLine] = newLine
-    inc(bufStatus.countChange)
-
-  if autoCloseParen and canConvertToChar(c):
-    let ch = c.toChar
-    if isCloseParen(ch) and bufStatus.nextRuneIs(windowNode, c):
-      moveRight()
-      inserted()
-    elif isOpenParen(ch):
-      insert()
-      moveRight()
-      newLine.insert(correspondingCloseParen(ch).ru, windowNode.currentColumn)
-      inserted()
-    else:
-      insert()
-      moveRight()
-      inserted()
-  else:
-    insert()
-    moveRight()
-    inserted()
-
-proc keyBackspace*(bufStatus: var BufferStatus, windowNode: WindowNode, autoDeleteParen: bool) =
-  if windowNode.currentLine == 0 and windowNode.currentColumn == 0: return
-
-  if windowNode.currentColumn == 0:
-    windowNode.currentColumn = bufStatus.buffer[windowNode.currentLine - 1].len
-
-    let oldLine = bufStatus.buffer[windowNode.currentLine - 1]
-    var newLine = bufStatus.buffer[windowNode.currentLine - 1]
-    newLine &= bufStatus.buffer[windowNode.currentLine]
-    bufStatus.buffer.delete(windowNode.currentLine, windowNode.currentLine)
-    if oldLine != newLine: bufStatus.buffer[windowNode.currentLine - 1] = newLine
-
-    dec(windowNode.currentLine)
-  else:
-    dec(windowNode.currentColumn)
-
-    let
-      currentChar = bufStatus.buffer[windowNode.currentLine][windowNode.currentColumn]
-      oldLine = bufStatus.buffer[windowNode.currentLine]
-    var newLine = bufStatus.buffer[windowNode.currentLine]
-    newLine.delete(windowNode.currentColumn)
-    if oldLine != newLine: bufStatus.buffer[windowNode.currentLine] = newLine
-
-    if autoDeleteParen: bufStatus.deleteParen(windowNode, currentChar)
-
-    if bufStatus.mode == Mode.insert and windowNode.currentColumn > bufStatus.buffer[windowNode.currentLine].len:
-      windowNode.currentColumn = bufStatus.buffer[windowNode.currentLine].len
-
-  inc(bufStatus.countChange)
-
-proc insertIndent(bufStatus: var BufferStatus, windowNode: WindowNode) =
-  let indent = min(countRepeat(bufStatus.buffer[windowNode.currentLine], Whitespace, 0), windowNode.currentColumn)
-
-  let oldLine = bufStatus.buffer[windowNode.currentLine + 1]
-  var newLine = bufStatus.buffer[windowNode.currentLine + 1]
-  newLine &= repeat(' ', indent).toRunes
-  if oldLine != newLine: bufStatus.buffer[windowNode.currentLine + 1] = newLine
-
-proc keyEnter*(bufStatus: var BufferStatus, windowNode: WindowNode, autoIndent: bool) =
-  bufStatus.buffer.insert(ru"", windowNode.currentLine + 1)
-
-  if autoIndent:
-    bufStatus.insertIndent(windowNode)
-
-    var startOfCopy = max(countRepeat(bufStatus.buffer[windowNode.currentLine], Whitespace, 0), windowNode.currentColumn)
-    startOfCopy += countRepeat(bufStatus.buffer[windowNode.currentLine], Whitespace, startOfCopy)
-
-    block:
-      let oldLine = bufStatus.buffer[windowNode.currentLine + 1]
-      var newLine = bufStatus.buffer[windowNode.currentLine + 1]
-      newLine &= bufStatus.buffer[windowNode.currentLine][startOfCopy ..< bufStatus.buffer[windowNode.currentLine].len]
-      if oldLine != newLine: bufStatus.buffer[windowNode.currentLine + 1] = newLine
-    
-    block:
-      let
-        first = windowNode.currentColumn
-        last = bufStatus.buffer[windowNode.currentLine].high
-      if first <= last:
-        let oldLine = bufStatus.buffer[windowNode.currentLine]
-        var newLine = bufStatus.buffer[windowNode.currentLine]
-        newLine.delete(first, last)
-        if oldLine != newLine: bufStatus.buffer[windowNode.currentLine] = newLine
-
-    inc(windowNode.currentLine)
-    windowNode.currentColumn = countRepeat(bufStatus.buffer[windowNode.currentLine], Whitespace, 0)
-  else:
-    block:
-      let oldLine = bufStatus.buffer[windowNode.currentLine + 1]
-      var newLine = bufStatus.buffer[windowNode.currentLine + 1]
-      newLine &= bufStatus.buffer[windowNode.currentLine][windowNode.currentColumn ..< bufStatus.buffer[windowNode.currentLine].len]
-      if oldLine != newLine: bufStatus.buffer[windowNode.currentLine + 1] = newLine
-
-    block:
-      let oldLine = bufStatus.buffer[windowNode.currentLine]
-      var newLine = bufStatus.buffer[windowNode.currentLine]
-      newLine.delete(windowNode.currentColumn, bufStatus.buffer[windowNode.currentLine].high)
-      if oldLine != newLine: bufStatus.buffer[windowNode.currentLine] = newLine
-
-    inc(windowNode.currentLine)
-    windowNode.currentColumn = 0
-    windowNode.expandedColumn = 0
-
-  inc(bufStatus.countChange)
-
-proc insertTab(bufStatus: var BufferStatus, windowNode: WindowNode, tabStop: int, autoCloseParen: bool) =
-  for i in 0 ..< tabStop: insertCharacter(bufStatus, windowNode, autoCloseParen, ru' ')
+proc calcMainWindowY(isEnableTabLine, isEnableWorkSpaceLine: bool): int =
+  if isEnableTabLine: result.inc
+  if isEnableWorkSpaceLine: result.inc
 
 proc insertMode*(status: var EditorStatus) =
-  changeCursorType(status.settings.insertModeCursor)
+  if not status.settings.disableChangeCursor:
+    changeCursorType(status.settings.insertModeCursor)
 
   status.resize(terminalHeight(), terminalWidth())
 
-  while status.bufStatus[status.workspace[status.currentWorkSpaceIndex].currentMainWindowNode.bufferIndex].mode == Mode.insert:
-    let currentBufferIndex = status.bufferIndexInCurrentWindow
+  var suggestionWindow = none(SuggestionWindow)
 
+  while isInsertMode(currentBufStatus.mode):
     status.update
 
-    var key: Rune = Rune('\0')
-    while key == Rune('\0'):
+    if suggestionWindow.isSome:
+      let
+        mainWindowY = calcMainWindowY(status.settings.tabLine.useTab,
+                                      status.settings.workSpace.workSpaceLine)
+        mainWindowHeight = status.settings.getMainWindowHeight(terminalHeight())
+        (y, x) = suggestionWindow.get.calcSuggestionWindowPosition(
+          currentMainWindowNode,
+          mainWindowHeight)
+      suggestionWindow.get.writeSuggestionWindow(
+        currentMainWindowNode,
+        y, x,
+        terminalHeight(), terminalWidth(),
+        mainWindowY,
+        status.settings.statusLine.enable)
+
+    var key = errorKey
+    while key == errorKey:
       status.eventLoopTask
-      key = getKey(status.workSpace[status.currentWorkSpaceIndex].currentMainWindowNode.window)
+      key = getKey(currentMainWindowNode)
 
-    var windowNode = status.workSpace[status.currentWorkSpaceIndex].currentMainWindowNode
+    status.lastOperatingTime = now()
 
-    status.bufStatus[currentBufferIndex].buffer.beginNewSuitIfNeeded
-    status.bufStatus[currentBufferIndex].tryRecordCurrentPosition(windowNode)
-    
+    var windowNode = currentMainWindowNode
+
+    currentBufStatus.buffer.beginNewSuitIfNeeded
+    currentBufStatus.tryRecordCurrentPosition(windowNode)
+
+    if suggestionWindow.isSome:
+      if canHandleInSuggestionWindow(key):
+        suggestionWindow.get.handleKeyInSuggestionWindow(
+          currentBufStatus,
+          currentMainWindowNode, key)
+        continue
+      else:
+        if suggestionWindow.get.isLineChanged:
+          currentBufStatus.buffer[currentMainWindowNode.currentLine] = suggestionWindow.get.newLine
+          windowNode.expandedColumn = windowNode.currentColumn
+        suggestionWindow.get.close
+        suggestionWindow = none(SuggestionWindow)
+
+    let
+      prevLine = currentBufStatus.buffer[currentMainWindowNode.currentLine]
+      prevLineNumber = currentMainWindowNode.currentLine
+
     if isResizekey(key):
       status.resize(terminalHeight(), terminalWidth())
-      status.commandWindow.erase
     elif isEscKey(key) or isControlSquareBracketsRight(key):
       if windowNode.currentColumn > 0: dec(windowNode.currentColumn)
       windowNode.expandedColumn = windowNode.currentColumn
       status.changeMode(Mode.normal)
+    elif isControlU(key):
+      currentBufStatus.deleteBeforeCursorToFirstNonBlank(
+        currentMainWindowNode)
     elif isLeftKey(key):
       windowNode.keyLeft
     elif isRightkey(key):
-      status.bufStatus[currentBufferIndex].keyRight(windowNode)
+      currentBufStatus.keyRight(windowNode)
     elif isUpKey(key):
-      status.bufStatus[currentBufferIndex].keyUp(windowNode)
+      currentBufStatus.keyUp(windowNode)
     elif isDownKey(key):
-      status.bufStatus[currentBufferIndex].keyDown(windowNode)
+      currentBufStatus.keyDown(windowNode)
     elif isPageUpKey(key):
       pageUp(status)
     elif isPageDownKey(key):
@@ -176,16 +85,54 @@ proc insertMode*(status: var EditorStatus) =
     elif isHomeKey(key):
       windowNode.moveToFirstOfLine
     elif isEndKey(key):
-      status.bufStatus[currentBufferIndex].moveToLastOfLine(windowNode)
+      currentBufStatus.moveToLastOfLine(windowNode)
     elif isDcKey(key):
-      status.bufStatus[currentBufferIndex].deleteCurrentCharacter(status.workSpace[status.currentWorkSpaceIndex].currentMainWindowNode, status.settings.autoDeleteParen)
-    elif isBackspaceKey(key):
-      status.bufStatus[currentBufferIndex].keyBackspace(status.workSpace[status.currentWorkSpaceIndex].currentMainWindowNode, status.settings.autoDeleteParen)
+      currentBufStatus.deleteCurrentCharacter(
+        currentMainWindowNode,
+        status.settings.autoDeleteParen)
+    elif isBackspaceKey(key) or isControlH(key):
+      currentBufStatus.keyBackspace(
+        currentMainWindowNode,
+        status.settings.autoDeleteParen,
+        status.settings.tabStop)
     elif isEnterKey(key):
-      keyEnter(status.bufStatus[currentBufferIndex], status.workSpace[status.currentWorkSpaceIndex].currentMainWindowNode, status.settings.autoIndent)
-    elif key == ord('\t'):
-      insertTab(status.bufStatus[currentBufferIndex], status.workSpace[status.currentWorkSpaceIndex].currentMainWindowNode, status.settings.tabStop, status.settings.autoCloseParen)
+      keyEnter(currentBufStatus,
+               currentMainWindowNode,
+               status.settings.autoIndent,
+               status.settings.tabStop)
+    elif isTabKey(key) or isControlI(key):
+      insertTab(currentBufStatus,
+                currentMainWindowNode,
+                status.settings.tabStop,
+                status.settings.autoCloseParen)
+    elif isControlE(key):
+      currentBufStatus.insertCharacterBelowCursor(
+        currentMainWindowNode)
+    elif isControlY(key):
+      currentBufStatus.insertCharacterAboveCursor(
+        currentMainWindowNode)
+    elif isControlW(key):
+      currentBufStatus.deleteWordBeforeCursor(
+        currentMainWindowNode,
+        status.registers,
+        status.settings.tabStop)
+    elif isControlU(key):
+      currentBufStatus.deleteCharactersBeforeCursorInCurrentLine(
+        currentMainWindowNode)
+    elif isControlT(key):
+      currentBufStatus.addIndentInCurrentLine(
+        currentMainWindowNode,
+        status.settings.view.tabStop)
+    elif isControlD(key):
+      currentBufStatus.deleteIndentInCurrentLine(
+        currentMainWindowNode,
+        status.settings.view.tabStop)
     else:
-      insertCharacter(status.bufStatus[currentBufferIndex], status.workSpace[status.currentWorkSpaceIndex].currentMainWindowNode, status.settings.autoCloseParen, key)
+      insertCharacter(currentBufStatus,
+                      currentMainWindowNode,
+                      status.settings.autoCloseParen, key)
 
-  stdout.write "\x1b[2 q"
+    if status.settings.autocompleteSettings.enable and
+       prevLineNumber == currentMainWindowNode.currentLine and
+       prevLine != currentBufStatus.buffer[currentMainWindowNode.currentLine]:
+      suggestionWindow = tryOpenSuggestionWindow(currentBufStatus, currentMainWindowNode)

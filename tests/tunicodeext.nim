@@ -1,5 +1,5 @@
-import strutils, unittest, encodings
-import moepkg/unicodeext
+import strutils, unittest, encodings, sequtils, sugar
+import moepkg/unicodetext
 
 test "width 1":
   check("abc".toRunes.width == 3)
@@ -10,6 +10,9 @@ test "width 2":
   check(Rune(0x10FFFF).width == 1)
   check(Rune(0x110000).width == 1)
 
+test "split":
+  check split(ru";;this;is;an;;example;;;", ru';') == @[ru"", ru"", ru"this", ru"is", ru"an", ru"", ru"example", ru"", ru"", ru""]
+
 test "toRune":
   check(48.toRune == '0'.toRune)
   check(65.toRune == 'A'.toRune)
@@ -17,7 +20,7 @@ test "toRune":
 
 test "ru":
   check(($(ru'a'))[0] == 'a')
-  
+
   check($(ru"abcde") == "abcde")
   check($(ru"あいうえお") == "あいうえお")
   check($(ru"編集表示") == "編集表示")
@@ -32,7 +35,7 @@ test "numberOfBytes":
   for x in 0 .. 127:
     let c = char(x)
     check(numberOfBytes(c) == 1)
-  
+
   check(numberOfBytes("Ā"[0]) == 2)
   check(numberOfBytes("あ"[0]) == 3)
   check(numberOfBytes("。"[0]) == 3)
@@ -245,3 +248,57 @@ test "detectCharacterEncoding: UTF-32LE":
   check(converted.detectCharacterEncoding == CharacterEncoding.utf32Le)
   ec.close
 
+test "findRune":
+  check find( ru"あaa", ru'a') == 1
+  check find( ru"あaa", ru'b') == -1
+
+test "findRunes":
+  check find(runes = ru"あいういう", sub = ru"いう") == 1
+  check find(runes = ru"あいういういう", sub = ru"いう", start = 2, last = 4) == 3
+  check find(runes = ru"あいういう", sub = ru"いうう") == -1
+
+test "rfindRune":
+  check rfind(ru"あaa", ru'a') == 2
+  check rfind(ru"あaa", ru'b') == -1
+
+test "rfindRunes":
+  check rfind(ru"あいういう", ru"いう") == 3
+  check rfind(ru"あいういう", ru"いう", start = 1, last = 3) == 1
+
+test "substrWithLast":
+  check substr(ru"あいうえお", first = 1, last = 3) == ru"いうえ"
+
+test "substr":
+  check substr(ru"あいう", first = 1) == ru"いう"
+
+test "splitWhitespace":
+  const s = "this\lis an\texample"
+  check splitWhitespace(s.ru) == @[ru"this", ru"is", ru"an", ru"example"]
+
+test "iteratorSplit":
+  const
+    expectedResult = @[ru"", ru"", ru"this", ru"is", ru"an", ru"", ru"example", ru"", ru"", ru""]
+    actualResult = collect(newSeq):
+      for x in unicodetext.split(ru";;this;is;an;;example;;;", r => r == ru';'):
+        x
+  check actualResult == expectedResult
+
+test "iteratorSplitWithRemoveEmptyEntries":
+  const
+    expectedResult = @[ru"", ru"", ru"this", ru"is", ru"an", ru"", ru"example", ru"", ru"", ru""].filter(runes => runes.len > 0)
+    actualResult = collect(newSeq):
+      for x in unicodetext.split(ru";;this;is;an;;example;;;", r => r == ru';', true):
+        x
+  check actualResult == expectedResult
+
+from os import `/`
+test "/":
+  proc checkJoinPath(head, tail: string) =
+    check head.ru / tail.ru == (head / tail).ru
+
+  checkJoinPath("usr", "")
+  checkJoinPath("", "lib")
+  checkJoinPath("", "/lib")
+  checkJoinPath("usr", "/lib")
+  checkJoinPath("usr/", "/lib/")
+  check ru"usr" / ru"lib" / ru"../bin" == ru"usr/bin"

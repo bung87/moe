@@ -7,16 +7,19 @@ The location is
 ~/.config/moe/moerc.toml
 ```
 
-You can use the example -> https://github.com/fox0430/moe/blob/master/example/moerc.toml
+You can use the example -> https://github.com/fox0430/moe/blob/develop/example/moerc.toml
 
 ## Setting items
 
 ### Standard table
 Color theme (String)
-default is ```"vivid"```. ```"vivid"``` or ```"dark"``` or ```"light"```
+```"vivid"``` or ```"dark"``` or ```"light"``` or ```"vscode"```  
+default is ```"dark"```.
 ```
 theme
 ```
+
+Note: ```"vscode"``` is you can use current VSCode/VSCodium theme. Check [#648](https://github.com/fox0430/moe/pull/648)
 
 Display line numbers (bool)  
 default is true
@@ -24,10 +27,10 @@ default is true
 number
 ```
 
-Display status bar (bool)  
+Display status line (bool)  
 default is true
 ```
-statusBar
+statusLine
 ```
 
 Enable syntax highlighting (bool)  
@@ -36,10 +39,28 @@ default is true
 syntax
 ```
 
+Enable/Disable indentation lines (bool)  
+default is true
+```
+indentationLines
+```
+
 Set tab width (Integer)  
 default is 2
 ```
 tabStop
+```
+
+Enable/Disable ignorecase (bool)  
+default is true
+```
+ignorecase
+```
+
+Enable/Disable smartcase (bool)  
+default is true
+```
+smartcase
 ```
 
 Automatic closing brackets (bool)  
@@ -54,20 +75,26 @@ default is true
 autoIndent
 ```
 
-Set cursor shape of the terminal emulator you are using (String) ```"block"``` or ```"ibeam"```  
-default is block
+Disable change of the cursor shape (bool)  
+default is false
+```
+disableChangeCursor
+```
+
+Set cursor shape of the terminal emulator you are using (String) ```"blinkBlock"``` or ```"blinkIbeam"``` or ```noneBlinkBlock``` or ```noneBlinkIbeam```  
+default is ```"blinkBlock"```
 ```
 defaultCursor
 ```
 
-Set cursor shape in normal mode (String) ```"block"``` or ```"ibeam"```  
-default is block
+Set cursor shape in normal mode (String) ```"blinkBlock"``` or ```"blinkIbeam"``` or ```noneBlinkBlock``` or ```noneBlinkIbeam```  
+default is ```"blinkBlock"```
 ```
 normalModeCursor
 ```
 
-Set cursor shape in insert mode (String) ```"block"``` or ```"ibeam"```  
-default is ibeam
+Set cursor shape in insert mode (String) ```"blinkBlock"``` or ```"blinkIbeam"``` or ```noneBlinkBlock``` or ```noneBlinkIbeam```  
+default is ```"blinkIbeam"```
 
 ```
 insertModeCursor
@@ -91,27 +118,16 @@ default is false
 liveReloadOfConf
 ```
 
-Realtime search (bool)  
+Incremental search (bool)  
 default is true
 ```
-realtimeSearch
+incrementalSearch
 ```
 
 Pop-up window in ex mode (bool)  
 default is true
 ```
 popUpWindowInExmode 
-```
-
-Highlight replacement text (bool)  
-default is true
-```
-replaceTextHighlight
-```
-Highlight a pair of paren (bool)  
-default is true
-```
-highlightPairOfParen
 ```
 
 Auto delete paren (bool)  
@@ -127,14 +143,9 @@ smoothScroll
 ```
 
 Smooth scroll speed (int)  
-default is 16
+default is 15
 ```
 smoothScrollSpeed
-```
-highlight other uses of the current word under the cursor (bool)  
-default is true
-```
-highlightCurrentWord
 ```
 
 System clipboard (bool)  
@@ -143,67 +154,86 @@ default is true
 systemClipboard
 ```
 
-Highlight full-width space (bool)  
-default is true
-```
-highlightFullWidthSpace
-```
-
 ### TabLine table
-Dispaly all bufer in tab line (bool)  
+Show all bufer in tab line (bool)  
 default is false  
 ```
 allBuffer
 ```
 
-### StatusBar table
-Multiple status bar (bool)  
+### StatusLine table
+Multiple status line (bool)  
 default is true
 ```
-multipleStatusBar 
+multipleStatusLine
 ```
 
-Display current mode (bool)  
+Enable/Disable merging status line with command line (bool)  
+default is true
+```
+merge
+```
+
+Show current mode (bool)  
 default is true
 ```
 mode
 ```
 
-Display edit history mark (bool)  
+Show edit history mark (bool)  
 default is true
 ```
 chanedMark
 ```
 
-Display line info (bool)  
+Show line info (bool)  
 default is true
 ```
 line
 ```
 
-Display column info (bool)  
+Show column info (bool)  
 default is ture
 ```
 column
 ```
 
-Display character encoding (bool)  
+Show character encoding (bool)  
 default is true
 ```
 encoding
 ```
 
-Display language (bool)  
+Show language (bool)  
 default is true
 ```
 language
 ```
 
-Display file location (bool)  
+Show file location (bool)  
 default is true
 ```
 directory
 ```
+
+Show current git branch name (bool)  
+default is true
+```
+gitbranchName
+```
+
+Show/Hide git branch name in status line when window is inactive (bool)  
+default is false
+```
+showGitInactive
+```
+
+Show/Hide mode string in status line when window is inactive (bool)  
+default is false
+```
+showModeInactive
+```
+
 ### BuildOnSave table
 
 Enable/Disable build on save (bool)  
@@ -220,6 +250,475 @@ workspaceRoot
 Override commands executed at build (string)  
 ```
 command
+```
+
+### WorkSpace table
+
+Enable/Disable workspace bar (bool)  
+default is false
+```
+workSpaceLine
+```
+
+### Highlight table
+
+Highlight the current line (bool)  
+defaut is true
+```
+currentLine
+
+```
+
+Highlight any word (array)  
+
+defaut
+```
+["TODO", "WIP", "NOTE"]
+```
+```
+reservedWord
+```
+
+Highlight replacement text (bool)  
+default is true
+```
+replaceText
+```
+
+Highlight a pair of paren (bool)  
+default is true
+```
+pairOfParen
+```
+
+Highlight full-width space (bool)  
+default is true
+```
+fullWidthSpace
+```
+
+Highlight trailing spaces (bool)  
+default is true
+```
+trailingSpaces
+```
+
+highlight other uses of the current word under the cursor (bool)  
+default is true
+```
+currentWord
+```
+
+### AutoBackup table
+
+Enable/Disable automatic backups (bool)  
+default is ture  
+```
+enable
+```
+
+Start backup when there is no operation for the set number of seconds (int)  
+default is 10 (10 second)  
+```
+idleTime
+```
+
+Backup interval (int)  
+default is 5 (5 minute)    
+```
+interval
+```
+
+Directory to save backup files (string)  
+
+If not set, it will be saved in .hisotry in the same directory as the original file.  
+
+default is "" (None)  
+```
+backupDir
+```
+
+Exclude settings for where you don't want to produce automatic backups (array)  
+default
+```
+["/etc"]
+```
+
+```
+dirToExclude
+```
+
+### QuickRun table
+
+Save buffer when run QuickRun (bool)  
+default is true
+```
+saveBufferWhenQuickRun
+```
+
+Setting commands to be executed by quick run (string)  
+default is "" (None)
+```
+command
+```
+
+Command timeout (int)  
+default is 30 (30 second)
+```
+timeout
+```
+
+Nim compiler advanced command setting (string)  
+default is "c"
+```
+nimAdvancedCommand
+```
+
+gcc compileer option setting (string)  
+default is "" (None)
+```
+ClangOptions
+```
+
+g++ compiler option setting (string)  
+default is "" (None)
+```
+CppOptions
+```
+
+Nim compiler option setting (string)  
+default is "" (None)
+```
+NimOptions
+```
+
+sh option setting (string)  
+default is "" (None)
+```
+shOptions
+```
+
+bash option setting (string)  
+default is "" (None)
+```
+bashOptions
+```
+
+### Notification table
+
+Enable/disable all messages/notifications in status line (bool)  
+default is true
+```
+screenNotifications
+```
+
+Enable/disable all messages/notifications in log (bool)  
+default is true
+```
+logNotifications
+```
+
+Enable/disable auto backups messages/notifications in status line (bool)  
+default is true
+```
+autoBackupScreenNotify
+```
+
+Enable/disable auto backups messages/notifications in log (bool)  
+default is true
+```
+autoBackupLogNotify
+```
+
+Enable/disable auto save messages/notifications in status line (bool)  
+default is true
+```
+autoSaveScreenNotify
+```
+
+Enable/disable auto save messages/notifications in log (bool)  
+default is true
+```
+autoSaveLogNotify
+```
+
+Enable/disable yank messages/notifications in status line (bool)  
+default is true
+```
+yankScreenNotify
+```
+
+Enable/disable yank messages/notifications in log (bool)  
+default is true
+```
+yankLogNotify
+```
+
+Enable/disable delete buffer messages/notifications in status line (bool)  
+default is true
+```
+deleteScreenNotify
+```
+
+Enable/disable delete buffer messages/notifications in log (bool)  
+default is true
+```
+deleteLogNotify
+```
+
+Enable/disable save messages/notifications in status line (bool)  
+default is true
+```
+saveScreenNotify
+```
+
+Enable/disable save messages/notifications in log (bool)  
+default is true
+```
+saveLogNotify
+```
+
+Enable/disable workspace (create, delete, etc...) messages/notifications in status line (bool)  
+default is true
+```
+workspaceScreenNotify
+```
+
+Enable/disable workspace (create, delete, etc...) messages/notifications in status line (bool)  
+default is true
+```
+workspaceLogNotify
+```
+
+Enable/disable QuickRun messages/notifications in status line (bool)  
+default is true
+```
+quickRunScreenNotify
+```
+
+Enable/disable QuickRun messages/notifications in log (bool)  
+default is true
+```
+quickRunLogNotify
+```
+
+Enable/disable build on save messages/notifications in status line (bool)  
+default is true
+```
+buildOnSaveScreenNotify
+```
+
+Enable/disable build on save messages/notifications in log (bool)  
+default is true
+```
+buildOnSaveLogNotify
+```
+
+Enable/disable filer messages/notifications in status line (bool)  
+default is true
+```
+filerScreenNotify
+```
+
+Enable/disable filer messages/notifications in log (bool)  
+default is true
+```
+filerLogNotify
+```
+
+Enable/disable restore messages/notifications in status line (bool)  
+default is true
+```
+restoreScreenNotify
+```
+
+Enable/disable restore messages/notifications in log (bool)  
+default is true
+```
+restoreLogNotify
+```
+
+### Filer table
+
+Show/hidden unicode icons (bool)  
+default is true
+```
+showIcons
+```
+
+### Autocomplete table
+
+Enable/Disable general-purpose autocomplete (bool).
+The default value is true.
+```
+enable
+```
+
+### Debug.WorkSpace table
+
+Show/Hidden all WorkSpace info in debug mode (bool)
+```
+enable
+```
+
+Show/Hidden the number of workspaces in debug mode (bool)
+```
+numOfWorkSpaces
+```
+
+Show/Hidden status.currentWorkSpaceIndex in debug mode (bool)
+```
+currentWorkSpaceIndex 
+```
+
+### Debug.WindowNode table
+
+Show/Hidden all windowNode info in debug mode (bool)
+```
+enable
+```
+
+Show/Hidden whether the current window or not in debug mode (bool)
+```
+currentWindow
+```
+
+Show/Hidden windowNode.index in debug mode (bool)
+```
+index
+```
+
+Show/Hidden windowNode.windowIndex in debug mode (bool)
+```
+windowIndex
+```
+
+Show/Hidden windowNode.bufferIndex in debug mode (bool)
+```
+bufferIndex
+```
+
+Show/Hidden parent node's windoeNode.index in debug mode (bool)
+```
+parentIndex
+```
+
+Show/Hidden windoeNode.child.len in debug mode (bool)
+```
+childLen
+```
+
+Show/Hidden windoeNode.splitType in debug mode (bool)
+```
+splitType
+```
+
+Show/Hidden whether windoeNode have cursesWindow or not in debug mode (bool)
+```
+haveCursesWin
+```
+
+Show/Hidden windowNode.y in debug mode (bool)
+```
+y
+```
+
+Show/Hidden windowNode.x in debug mode (bool)
+```
+x
+```
+
+Show/Hidden windowNode.h in debug mode (bool)
+```
+h
+```
+
+Show/Hidden windowNode.w in debug mode (bool)
+```
+w
+```
+
+Show/Hidden windowNode.currentLine in debug mode (bool)
+```
+currentLine
+```
+
+Show/Hidden windowNode.currentColumn in debug mode (bool)
+```
+currentColumn
+```
+
+Show/Hidden windowNode.expandedColumn in debug mode (bool)
+```
+expandedColumn
+```
+
+Show/Hidden windowNode.curosr in debug mode (bool)
+```
+cursor
+```
+
+### Debug.BufStatus table
+
+Show/Hidden all bufStatus info in debug mode (bool)
+```
+enable
+```
+
+Show/Hidden bufStatus index in debug mode (bool)
+```
+bufferIndex
+```
+
+Show/Hidden bufStatus.path in debug mode (bool)
+```
+path
+```
+
+Show/Hidden bufStatus.openDir in debug mode (bool)
+```
+openDir
+```
+
+Show/Hidden bufStatus.mode in debug mode (bool)
+```
+currentMode
+
+```
+
+Show/Hidden bufStatus.prevMode in debug mode (bool)
+```
+prevMode
+```
+
+Show/Hidden bufStatus.language in debug mode (bool)
+```
+language
+```
+
+Show/Hidden bufStatus.characterEncoding in debug mode (bool)
+```
+encoding 
+```
+
+Show/Hidden bufStatus.countChange in debug mode (bool)
+```
+countChange
+```
+
+Show/Hidden bufStatus.cmdLoop in debug mode (bool)
+```
+cmdLoop
+```
+
+Show/Hidden bufStatus.lastSaveTime in debug mode (bool)
+```
+lastSaveTime
+```
+
+Show/Hidden bufStatus.buffer.len in debug mode (bool)
+```
+bufferLen
 ```
 
 ### Color and theme
@@ -510,125 +1009,197 @@ Current line number highlighting background color
 currentLineNumBg
 ```
 
-Character color of Status bar in normal mode
+Character color of Status line in normal mode
 ```
-statusBarNormalMode
-```
-
-Status bar base color in normal mode
-```
-statusBarNormalModeBg
+statusLineNormalMode
 ```
 
-Mode text color in the status bar in normal mode
+Status line base color in normal mode
 ```
-statusBarModeNormalMode
-```
-
-Background color of mode text in the status bar in normal mode
-```
-statusBarModeNormalModeBg
+statusLineNormalModeBg
 ```
 
-Character color of Status bar in insert mode
+Mode text color in the status line in normal mode
 ```
-statusBarInsertMode
-```
-
-Status bar base color in insert mode
-```
-statusBarInsertModeBg
+statusLineModeNormalMode
 ```
 
-Mode text color in the status bar in insert mode
+Background color of mode text in the status line in normal mode
 ```
-statusBarModeInsertMode
-```
-
-Background color of mode text in the status bar in insert mode
-```
-statusBarModeInsertModeBg
+statusLineModeNormalModeBg
 ```
 
-Character color of Status bar in visual mode
+Character color of Status line in normal mode when inactive  
 ```
-statusBarVisualMode
-```
-
-Status bar base color in visual mode
-```
-statusBarVisualModeBg
+statusLineNormalModeInactive
 ```
 
-Mode text color in the status bar in visual mode
+Status line base color in normal mode when inactive  
 ```
-statusBarModeVisualMode
-```
-
-Background color of mode text in the status bar in visual mode
-```
-statusBarModeVisualModeBg
+statusLineNormalModeInactiveBg
 ```
 
-Character color of Status bar replace in mode
+Character color of Status line in insert mode
 ```
-statusBarReplaceMode
-```
-
-Status bar base color in replace mode
-```
-statusBarReplaceModeBg
+statusLineInsertMode
 ```
 
-Mode text color in the status bar in replace mode
+Status line base color in insert mode
 ```
-statusBarModeReplaceMode
-```
-
-Background color of mode text in the status bar in replace mode
-```
-statusBarModeReplaceModeBg
+statusLineInsertModeBg
 ```
 
-Character color of Status bar in filer mode
+Mode text color in the status line in insert mode
 ```
-statusBarFilerMode
-```
-
-Status bar base color in filer mode
-```
-statusBarFilerModeBg
+statusLineModeInsertMode
 ```
 
-Mode text color in the status bar in filer mode
+Background color of mode text in the status line in insert mode
 ```
-statusBarModeFilerMode
-```
-
-Background color of mode text in the status bar in filer mode
-```
-statusBarModeFilerModeBg
+statusLineModeInsertModeBg
 ```
 
-Character color of Status bar in ex mode
+Character color of Status line in insert mode when inactive
 ```
-statusBarExMode
-```
-
-Status bar base color in ex mode
-```
-statusBarExModeBg
+statusLineInsertModeInactive
 ```
 
-Mode text color in the status bar in ex mode
+Status line base color in insert mode when inactive
 ```
-statusBarExModeBg
+statusLineInsertModeInactiveBg
 ```
 
-Background color of mode text in the status bar in ex mode
+Character color of Status line in visual mode
 ```
-statusBarModeExModeBg
+statusLineVisualMode
 ```
+
+Status line base color in visual mode
+```
+statusLineVisualModeBg
+```
+
+Mode text color in the status line in visual mode
+```
+statusLineModeVisualMode
+```
+
+Background color of mode text in the status line in visual mode
+```
+statusLineModeVisualModeBg
+```
+
+Character color of Status line in visual mode when inactive
+```
+statusLineVisualModeInactive
+```
+
+Status line base color in visual mode when inactive
+```
+statusLineVisualModeInactiveBg
+```
+
+Character color of Status line replace in mode
+```
+statusLineReplaceMode
+```
+
+Status line base color in replace mode
+```
+statusLineReplaceModeBg
+```
+
+Mode text color in the status line in replace mode
+```
+statusLineModeReplaceMode
+```
+
+Background color of mode text in the status line in replace mode
+```
+statusLineModeReplaceModeBg
+```
+
+Character color of Status line replace in mode when inactive
+```
+statusLineReplaceModeInactive
+```
+
+Status line base color in replace mode when inactive
+```
+statusLineReplaceModeInactiveBg
+```
+
+Character color of Status line in filer mode
+```
+statusLineFilerMode
+```
+
+Status line base color in filer mode
+```
+statusLineFilerModeBg
+```
+
+Mode text color in the status line in filer mode
+```
+statusLineModeFilerMode
+```
+
+Background color of mode text in the status line in filer mode
+```
+statusLineModeFilerModeBg
+```
+
+Character color of Status line in filer mode when inactive
+```
+statusLineFilerModeInactive
+```
+
+Status line base color in filer mode when inactive
+```
+statusLineFilerModeInactiveBg
+```
+
+Character color of Status line in ex mode
+```
+statusLineExMode
+```
+
+Status line base color in ex mode
+```
+statusLineExModeBg
+```
+
+Mode text color in the status line in ex mode
+```
+statusLineExModeBg
+```
+
+Background color of mode text in the status line in ex mode
+```
+statusLineModeExModeBg
+```
+
+Character color of Status line in ex mode when inactive
+```
+statusLineExModeInactive
+```
+
+Status line base color in ex mode when inactive
+```
+statusLineExModeInactiveBg
+```
+
+Current git branch text color
+```
+statusLineGitBranch
+
+```
+
+Current git branch background color
+```
+statusLineGitBranchBg
+```
+
 
 Character color of tab title in tab line
 ```
@@ -697,32 +1268,57 @@ defaultCharactorColor
 
 Syntax highlighting color
 ```
-gtKeywordColor
+gtKeyword
 ```
 
 Syntax highlighting color
 ```
-gtStringLitColor
+gtFunctionName
 ```
 
 Syntax highlighting color
 ```
-gtDecNumberColor
+gtBoolean
 ```
 
 Syntax highlighting color
 ```
-gtCommentColor
+gtSpecialVar
 ```
 
 Syntax highlighting color
 ```
-gtLongCommentColor
+gtBuiltin
 ```
 
 Syntax highlighting color
 ```
-gtWhitespaceColor
+gtStringLit
+```
+
+Syntax highlighting color
+```
+gtDecNumber
+```
+
+Syntax highlighting color
+```
+gtComment
+```
+
+Syntax highlighting color
+```
+gtLongComment
+```
+
+Syntax highlighting color
+```
+gtWhitespace
+```
+
+Syntax highlighting color
+```
+gtPreprocessor
 ```
 
 Character color of current file name in filer mode
@@ -797,4 +1393,59 @@ replaceTextBg
 Background color of current word
 ```
 currentWordBg
+```
+
+Full width space text color
+```
+highlightFullWidthSpace
+```
+
+Full width space background color
+```
+highlightFullWidthSpaceBg
+```
+
+Trailing space color
+```
+highlightTrailingSpaces
+```
+
+Trailing space background color
+```
+highlightTrailingSpacesBg
+```
+
+Workspace bar text color
+```
+workSpaceBar
+```
+
+Workspace bar background color
+```
+workSpaceBarBg
+```
+
+Reserved word text color
+```
+reservedWord
+```
+
+Reserved word background color
+```
+reservedWordBg
+```
+
+Current line color in configuration mode
+```
+currentSetting
+```
+
+Current line background color in configuration mode
+```
+currentSettingBg
+```
+
+Current line background color
+```
+currentLineBg
 ```

@@ -1,53 +1,46 @@
 import os, unicode, times
-import moepkg/ui
-import moepkg/editorstatus
-import moepkg/normalmode
-import moepkg/insertmode
-import moepkg/visualmode
-import moepkg/replacemode
-import moepkg/filermode
-import moepkg/exmode
-import moepkg/searchmode
-import moepkg/buffermanager
-import moepkg/logviewer
-import moepkg/cmdlineoption
-import moepkg/settings
-import moepkg/commandview
-import moepkg/bufferstatus
+import moepkg/[ui, editorstatus, normalmode, insertmode, visualmode,
+               replacemode, filermode, exmode, buffermanager, logviewer,
+               cmdlineoption, bufferstatus, help, recentfilemode, quickrun,
+               historymanager, diffviewer, configmode, debugmode]
 
-proc main() =
+proc initEditor(): EditorStatus =
   let parsedList = parseCommandLineOption(commandLineParams())
 
   defer: exitUi()
 
   startUi()
 
-  var status = initEditorStatus()
-  status.settings.loadSettingFile
-  status.timeConfFileLastReloaded = now()
-  status.changeTheme
+  result = initEditorStatus()
+  result.loadConfigurationFile
+  result.timeConfFileLastReloaded = now()
+  result.changeTheme
 
   setControlCHook(proc() {.noconv.} =
     exitUi()
-    quit()
-  )
+    quit())
 
   if parsedList.len > 0:
     for p in parsedList:
-      if existsDir(p.filename):
-        try: setCurrentDir(p.filename)
-        except OSError:
-          status.commandWindow.writeFileOpenError(p.filename, status.messageLog)
-          status.addNewBuffer("")
-        status.bufStatus.add(BufferStatus(mode: Mode.filer, lastSavetime: now()))
-      else: status.addNewBuffer(p.filename)
-  else: status.addNewBuffer("")
+      if dirExists(p.filename):
+        result.addNewBuffer(p.filename, Mode.filer)
+      else:
+        result.addNewBuffer(p.filename)
+  else:
+    result.addNewBuffer
 
   disableControlC()
 
-  while status.workSpace.len > 0 and status.workSpace[status.currentWorkSpaceIndex].numOfMainWindow > 0:
+proc main() =
+  var status = initEditor()
 
-    let currentBufferIndex = status.workSpace[status.currentWorkSpaceIndex].currentMainWindowNode.bufferIndex
+  while status.workSpace.len > 0 and
+        status.workSpace[status.currentWorkSpaceIndex].numOfMainWindow > 0:
+
+    let
+      n = status.workSpace[status.currentWorkSpaceIndex].currentMainWindowNode
+      currentBufferIndex = n.bufferIndex
+
     case status.bufStatus[currentBufferIndex].mode:
     of Mode.normal: status.normalMode
     of Mode.insert: status.insertMode
@@ -55,9 +48,15 @@ proc main() =
     of Mode.replace: status.replaceMode
     of Mode.ex: status.exMode
     of Mode.filer: status.filerMode
-    of Mode.search: status.searchMode
     of Mode.bufManager: status.bufferManager
     of Mode.logViewer: status.messageLogViewer
+    of Mode.help: status.helpMode
+    of Mode.recentFile: status.recentFileMode
+    of Mode.quickRun: status.quickRunMode
+    of Mode.history: status.historyManager
+    of Mode.diff: status.diffViewer
+    of Mode.config: status.configMode
+    of Mode.debug: status.debugMode
 
   status.settings.exitEditor
 

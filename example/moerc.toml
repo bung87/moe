@@ -1,6 +1,6 @@
 [Standard]
 
-theme = "vivid"
+theme = "dark"
 
 number = true
 
@@ -8,11 +8,13 @@ currentNumber = true
 
 cursorLine = false
 
-statusBar = true
+statusLine = true
 
 tabLine = true
 
 syntax = true
+
+indentationLines = true
 
 tabStop = 2
 
@@ -20,11 +22,17 @@ autoCloseParen = true
 
 autoIndent = true
 
-defaultCursor = "block"
+ignorecase = true
 
-normalModeCursor = "block"
+smartcase = true
 
-insertModeCursor = "ibeam"
+disableChangeCursor = false
+
+defaultCursor = "blinkBlock"
+
+normalModeCursor = "blinkBlock"
+
+insertModeCursor = "blinkIbeam"
 
 autoSave = false
 
@@ -32,23 +40,21 @@ autoSaveInterval = 5
 
 liveReloadOfConf = false
 
-realtimeSearch = true
+incrementalSearch = true
 
 popUpWindowInExmode = true
-
-replaceTextHighlight = true
-
-highlightPairOfParen = true
 
 autoDeleteParen = true
 
 systemClipboard = true
 
-highlightFullWidthSpace = true
+smoothScroll = true
 
-[BuildOnSaveSettings]
+smoothScrollSpeed = 15
 
-buildOnSave = false
+[BuildOnSave]
+
+enable = false
 
 # workspaceRoot = "/home/fox/git/moe"
 
@@ -60,7 +66,13 @@ allBuffer = false
 
 [StatusBar]
 
+multipleStatusBar = true
+
+merge = false
+
 mode = true
+
+filename = true
 
 chanedMark = true
 
@@ -74,154 +86,297 @@ language = true
 
 directory = true
 
-multipleStatusBar = true
+gitbranchName = true
+
+showGitInactive = false
+
+showModeInactive = false
 
 [WorkSpace]
 
-useBar = false
+workSpaceLine = false
+
+[Highlight]
+
+currentLine = true
+
+reservedWord = ["TODO", "WIP", "NOTE"]
+
+replaceText = true
+
+pairOfParen = true
+
+fullWidthSpace = true
+
+trailingSpaces = true
+
+currentWord = true
+
+[AutoBackup]
+
+enable = true
+
+# 10 second
+idleTime = 10
+
+# 5 minute
+interval = 5
+
+# backupDir = "/home/fox/Nim"
+
+dirToExclude = ["/etc"]
+
+[QuickRun]
+
+saveBufferWhenQuickRun = true
+
+# command = "nimble build"
+
+# 30 second
+timeout = 30
+
+# nimAdvancedCommand = "js"
+
+# ClangOptions = "-Wall"
+
+# CppOptions = "-Wall"
+
+# NimOptions = "--debugger:native"
+
+# shOptions = "-c"
+
+# bashOptions = "-c"
+
+[Notification]
+
+screenNotifications = true
+
+logNotifications = true
+
+autoBackupScreenNotify = true
+
+autoBackupLogNotify = true
+
+autoSaveScreenNotify = true
+
+autoSaveLogNotify = true
+
+yankScreenNotify = true
+
+yankLogNotify = true
+
+deleteScreenNotify = true
+
+deleteLogNotify = true
+
+saveScreenNotify = true
+
+saveLogNotify = true
+
+workspaceScreenNotify = true
+
+workspaceLogNotify = true
+
+quickRunScreenNotify = true
+
+quickRunLogNotify = true
+
+buildOnSaveScreenNotify = true
+
+buildOnSaveLogNotify = true
+
+filerScreenNotify = true
+
+filerLogNotify = true
+
+restoreScreenNotify = true
+
+restoreLogNotify = true
+
+[Filer]
+
+showIcons = true
+
+[Autocomplete]
+
+enable = true
+
+[Debug.WorkSpace]
+enable = true
+numOfWorkSpaces = true
+currentWorkSpaceIndex = true
+
+[Debug.WindowNode]
+enable = true
+currentWindow = true
+index = true
+windowIndex = true
+bufferIndex = true
+parentIndex = true
+childLen = true
+splitType = true
+haveCursesWin = true
+y = true
+x = true
+h = true
+w = true
+currentLine = true
+currentColumn = true
+expandedColumn = true
+cursor = true
+
+[Debug.BufferStatus]
+enable = true
+bufferIndex = true
+path = true
+openDir = true
+currentMode = true
+prevMode = true
+language = true
+encoding = true
+countChange = true
+cmdLoop = true
+lastSaveTime = true
+bufferLen = true
 
 [Theme]
 
 baseTheme = "dark"
 
 editorBg = "default"
-
 lineNum = "gray54"
-
 lineNumBg = "default"
-
 currentLineNum = "teal"
-
 currentLineNumBg = "default"
+# statsu bar
+statusLineNormalMode = "white"
+statusLineNormalModeBg = "blue"
+statusLineModeNormalMode = "black"
+statusLineModeNormalModeBg = "white"
+statusLineNormalModeInactive = "blue"
+statusLineNormalModeInactiveBg = "white"
 
-statusBar = "white"
+statusLineInsertMode = "white"
+statusLineInsertModeBg = "blue"
+statusLineModeInsertMode = "black"
+statusLineModeInsertModeBg = "white"
+statusLineInsertModeInactive = "blue"
+statusLineInsertModeInactiveBg = "white"
 
-statusBarBg = "blue"
+statusLineVisualMode = "white"
+statusLineVisualModeBg = "blue"
+statusLineModeVisualMode = "black"
+statusLineModeVisualModeBg = "white"
+statusLineVisualModeInactive = "blue"
+statusLineVisualModeInactiveBg = "white"
 
-statusBarMode = "black"
+statusLineReplaceMode = "white"
+statusLineReplaceModeBg = "blue"
+statusLineModeReplaceMode = "black"
+statusLineModeReplaceModeBg = "white"
+statusLineReplaceModeInactive = "blue"
+statusLineReplaceModeInactiveBg = "white"
 
-statusBarModeBg = "white"
+statusLineFilerMode = "white"
+statusLineFilerModeBg = "blue"
+statusLineModeFilerMode = "black"
+statusLineModeFilerModeBg = "white"
+statusLineFilerModeInactive = "blue"
+statusLineFilerModeInactiveBg = "white"
 
-statusBarNormalMode = "white"
+statusLineExMode = "white"
+statusLineExModeBg = "blue"
+statusLineModeExMode = "black"
+statusLineModeExModeBg = "white"
+statusLineExModeInactive = "blue"
+statusLineExModeInactiveBg = "white"
 
-statusBarNormalModeBg = "blue"
+statusLineGitBranch = "white"
+statusLineGitBranchBg = "blue"
 
-statusBarModeNormalMode = "black"
-
-statusBarModeNormalModeBg = "white"
-
-statusBarInserMode = "white"
-
-statusBarInserModeBg = "blue"
-
-statusBarModeInserMode = "black"
-
-statusBarModeInserModeBg = "white"
-
-statusBarVisualMode = "white"
-
-statusBarVisualModeBg = "blue"
-
-statusBarModeVisualMode = "black"
-
-statusBarModeVisualModeBg = "white"
-
-statusBarReplaceMode = "white"
-
-statusBarReplaceModeBg = "blue"
-
-statusBarModeReplaceMode = "black"
-
-statusBarModeReplaceModeBg = "white"
-
-statusBarFilerMode = "white"
-
-statusBarFilerModeBg = "blue"
-
-statusBarModeFilerMode = "black"
-
-statusBarModeFilerModeBg = "white"
-
-statusBarExMode = "black"
-
-statusBarExModeBg = "white"
-
-statusBarModeExMode = "black"
-
-statusBarModeExModeBg = "white"
-
+# tab line
 tab = "white"
-
 tabBg = "default"
-
 currentTab = "white"
-
 currentTabBg = "blue"
 
+# command  bar
 commandBar = "gray100"
-
 commandBarBg = "default"
 
+# error message
 errorMessage = "red"
-
 errorMessageBg = "default"
 
+# search result highlighting
 searchResult = "default"
-
 searchResultBg = "red"
 
+# selected area in visual mode
 visualMode = "gray100"
-
 visualModeBg = "purple_1"
 
-defaultCharactorColor = "gray100"
+# color scheme
+defaultChar = "white"
+gtKeyword = "skyBlue1"
+gtFunctionName = "gold1"
+gtBoolean = "yellow"
+gtStringLit = "yellow"
+gtSpecialVar = "green"
+gtBuiltin = "yellow"
+gtDecNumber = "aqua"
+gtComment = "gray"
+gtLongComment = "gray"
+gtWhitespace = "gray"
+gtPreprocessor = "green"
 
-gtKeywordColor = "seaGreen1_2"
-
-gtStringLitColor = "purple_1"
-
-gtDecNumberColor = "aqua"
-
-gtCommentColor = "gray"
-
-gtLongCommentColor = "gray"
-
-gtWhitespaceColor = "gray100"
-
+# filer mode
 currentFile = "gray100"
-
 currentFileBg = "teal"
-
 file = "gray100"
-
 fileBg = "default"
-
 dir = "blue"
-
 dirBg = "default"
-
 pcLink = "teal"
-
 pcLinkBg = "default"
 
+# pop up window
 popUpWindow = "gray100"
-
 popUpWindowBg = "black"
-
 popUpWinCurrentLine = "blue"
-
 popUpWinCurrentLineBg = "black"
 
+# replace text highlighting
 replaceText = "default"
-
 replaceTextBg = "red"
 
+# pair of paren highlighting
+parenText = "default"
+parenTextBg = "white"
+
+# highlight other uses current word
+currentWord = "default"
 currentWordBg = "gray"
 
-highlightFullWidthSpace =  red
+# highlight full width space
+highlightFullWidthSpace = "red"
+highlightFullWidthSpaceBg = "red"
 
-highlightFullWidthSpaceBg = red
+# highlight trailing spaces
+highlightTrailingSpaces = "red"
+highlightTrailingSpacesBg = "red"
 
-workSpaceBar = white
+# work space bar
+workSpaceBar = "white"
+workSpaceBarBg = "blue"
 
-workSpaceBarBg = blue
+# highlight reserved words
+reservedWord = "white"
+reservedWordBg = "gray"
+
+# configuration mode
+currentSetting = "gray100"
+currentSettingBg = "teal"
+
+# highlight current line background
+currentLineBg = "gray27"
