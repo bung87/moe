@@ -71,6 +71,9 @@ jobs:
         wget http://mirrors.kernel.org/ubuntu/pool/universe/a/abduco/abduco_0.1-2_amd64.deb
         sudo dpkg -i abduco_0.1-2_amd64.deb
 
+    - name: Install nimlsp
+      run: nimble install nimlsp
+
     - name: Run unit test
       run: |
         nimble refresh
