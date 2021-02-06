@@ -23,7 +23,7 @@ type CompletionItemTag {.pure.} = enum
 
 #type CodeActionKind = string
 
-type SymbolKind {.pure.} = enum 
+type SymbolKind {.pure.} = enum
   File = 1
   Module = 2
   Namespace = 3
@@ -81,13 +81,13 @@ jsonSchema:
   WorkspaceEditClientCapabilities:
     # The client supports versioned document changes in `WorkspaceEdit`s
     documentChanges?: bool
-    
+
     # The resource operations the client supports. Clients should at least
     # support 'create', 'rename' and 'delete' files and folders.
     #
     # @since 3.13.0
     resourceOperations?: ResourceOperationKind[]
-    
+
     # The failure handling strategy of a client if applying the workspace edit
     # fails.
     #
@@ -143,14 +143,14 @@ jsonSchema:
 
     # Capabilities specific to the `workspace/symbol` request.
     symbol?: WorkspaceSymbolClientCapabilities
-    
+
     # Capabilities specific to the `workspace/executeCommand` request.
     executeCommand?: ExecuteCommandClientCapabilities
-    
+
     # The client has support for workspace folders.
     # Since 3.6.0
     workspaceFolders?: bool
-    
+
     # The client supports `workspace/configuration` requests.
     # Since 3.6.0
     configuration?: bool
@@ -164,15 +164,15 @@ jsonSchema:
   TextDocumentSyncClientCapabilities:
     # Whether text document synchronization supports dynamic registration.
     dynamicRegistration?: bool
-    
+
     # The client supports sending will save notifications.
     willSave?: bool
-    
+
     # The client supports sending a will save request and
     # waits for a response providing text edits which will
     # be applied to the document before it is saved.
     willSaveWaitUntil?: bool
-    
+
     # The client supports did save notifications.
     didSave?: bool
 
@@ -202,17 +202,17 @@ jsonSchema:
 
     # Client supports commit characters on a completion item.
     commitCharactersSupport?: bool
-      
+
     # Client supports the follow content formats for the documentation
     # property. The order describes the preferred format of the client.
     documentationFormat?: MarkupKind[]
-      
+
        # Client supports the deprecated property on a completion item.
     deprecatedSupport?: bool
-      
+
     # Client supports the preselect property on a completion item.
     preselectSupport?: bool
-      
+
     # Client supports the tag property on a completion item. Clients supporting
     # tags have to handle unknown tags gracefully. Clients especially need to
     # preserve unknown tags when sending a completion item back to the server in
@@ -220,13 +220,13 @@ jsonSchema:
     #
     # @since 3.15.0
     tagSupport?: TagSupportCompletionItemCompletionClientCapabilities
-    
+
     completionItemKind?: CompletionItemKind
 
   CompletionClientCapabilities:
     # Whether completion supports dynamic registration.
     dynamicRegistration?: bool
-    
+
     # The client supports the following `CompletionItem` specific
     # capabilities.
     completionItem?: CompletionItemCompletionClientCapabilities
@@ -238,7 +238,7 @@ jsonSchema:
   HoverClientCapabilities:
     # Whether hover supports dynamic registration.
     dynamicRegistration?: bool
-    
+
     # Client supports the follow content formats for the content
     # property. The order describes the preferred format of the client.
     contentFormat?: MarkupKind[]
@@ -278,16 +278,15 @@ jsonSchema:
     # Whether declaration supports dynamic registration. If this is set to `true`
     # the client supports the new `DeclarationRegistrationOptions` return value
     # for the corresponding server capability as well.
-    #/
     dynamicRegistration?: bool
-    
+
     # The client supports additional metadata in the form of declaration links.
     linkSupport?: bool
 
   DefinitionClientCapabilities:
     # Whether definition supports dynamic registration.
     dynamicRegistration?: bool
-    
+
     # The client supports additional metadata in the form of definition links.
     #
     # @since 3.14.0
@@ -298,7 +297,7 @@ jsonSchema:
     # the client supports the new `TypeDefinitionRegistrationOptions` return value
     # for the corresponding server capability as well.
     dynamicRegistration?: bool
-   
+
     # The client supports additional metadata in the form of definition links.
     #
     # @since 3.14.0
@@ -309,7 +308,7 @@ jsonSchema:
     # the client supports the new `ImplementationRegistrationOptions` return value
     # for the corresponding server capability as well.
     dynamicRegistration?: bool
-    
+
     # The client supports additional metadata in the form of definition links.
     #
     # @since 3.14.0
@@ -350,7 +349,7 @@ jsonSchema:
     # handle values outside its set gracefully and falls back
     # to a default value when unknown.
     valueSet: CodeActionKind[]
- 
+
   #CodeActionLiteralSupport:
     # The code action kind is supported with the following value
     # set.
@@ -359,13 +358,13 @@ jsonSchema:
   CodeActionClientCapabilities:
     # Whether code action supports dynamic registration.
     dynamicRegistration?: bool
-    
+
     # The client supports code action literals as a valid
     # response of the `textDocument/codeAction` request.
     #
     # @since 3.8.0
     #codeActionLiteralSupport?: CodeActionLiteralSupport
-   
+
     # Whether code action supports the `isPreferred` property.
     # @since 3.15.0
     isPreferredSupport?: bool
@@ -373,11 +372,11 @@ jsonSchema:
   CodeLensClientCapabilities:
     # Whether code lens supports dynamic registration.
     dynamicRegistration?: bool
-#
+
   DocumentLinkClientCapabilities:
     # Whether document link supports dynamic registration.
     dynamicRegistration?: bool
-    
+
     # Whether the client supports the `tooltip` property on `DocumentLink`.
     # @since 3.15.0
     tooltipSupport?: bool
@@ -401,7 +400,7 @@ jsonSchema:
   RenameClientCapabilities:
     # Whether rename supports dynamic registration.
     dynamicRegistration?: bool
-    
+
     # Client supports testing for validity of rename operations
     # before execution.
     #
@@ -458,64 +457,64 @@ jsonSchema:
 
     # Capabilities specific to the `textDocument/signatureHelp` request.
     signatureHelp?: SignatureHelpClientCapabilities
-    
+
     # Capabilities specific to the `textDocument/declaration` request.
     # @since 3.14.0
     declaration?: DeclarationClientCapabilities
-    
+
     # Capabilities specific to the `textDocument/definition` request.
     definition?: DefinitionClientCapabilities
-    
+
     # Capabilities specific to the `textDocument/typeDefinition` request.
     # @since 3.6.0
     typeDefinition?: TypeDefinitionClientCapabilities
-    
+
     # Capabilities specific to the `textDocument/implementation` request.
     # @since 3.6.0
     implementation?: ImplementationClientCapabilities
-    
+
     # Capabilities specific to the `textDocument/references` request.
     references?: ReferenceClientCapabilities
-    
+
     # Capabilities specific to the `textDocument/documentHighlight` request.
     documentHighlight?: DocumentHighlightClientCapabilities
-    
+
     # Capabilities specific to the `textDocument/documentSymbol` request.
     documentSymbol?: DocumentSymbolClientCapabilities
-    
+
     # Capabilities specific to the `textDocument/codeAction` request.
     codeAction?: CodeActionClientCapabilities
-    
+
     # Capabilities specific to the `textDocument/codeLens` request.
     codeLens?: CodeLensClientCapabilities
-    
+
     # Capabilities specific to the `textDocument/documentLink` request.
     documentLink?: DocumentLinkClientCapabilities
-    
+
     # Capabilities specific to the `textDocument/documentColor` and the
     # `textDocument/colorPresentation` request.
     # @since 3.6.0
     colorProvider?: DocumentColorClientCapabilities
-    
+
     # Capabilities specific to the `textDocument/formatting` request.
     formatting?: DocumentFormattingClientCapabilities
-    
+
     # Capabilities specific to the `textDocument/rangeFormatting` request.
     rangeFormatting?: DocumentRangeFormattingClientCapabilities
-    
+
     # Capabilities specific to the `textDocument/onTypeFormatting` request.
     onTypeFormatting?: DocumentOnTypeFormattingClientCapabilities
-    
+
     # Capabilities specific to the `textDocument/rename` request.
     rename?: RenameClientCapabilities
-    
+
     # Capabilities specific to the `textDocument/publishDiagnostics` notification.
     publishDiagnostics?: PublishDiagnosticsClientCapabilities
-    
+
      # Capabilities specific to the `textDocument/foldingRange` request.
      # @since 3.10.0
     foldingRange?: FoldingRangeClientCapabilities
-    
+
      # Capabilities specific to the `textDocument/selectionRange` request.
      # @since 3.15.0
     selectionRange?: SelectionRangeClientCapabilities
@@ -551,3 +550,21 @@ jsonSchema:
     trace?: string
 
     workspaceFolders?: WorkspaceFolder[] or nil
+
+  TextDocumentItem:
+    # The text document's URI.
+    uri: string
+
+    # The text document's language identifier.
+    languageId: string
+
+    # The version number of this document (it will increase after each
+    # change, including undo/redo).
+    version: int
+
+    # The content of the opened text document.
+    text: string
+
+  DidOpenTextDocumentParams:
+    # The document that was opened.
+    textDocument: TextDocumentItem

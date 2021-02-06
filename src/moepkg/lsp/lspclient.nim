@@ -17,7 +17,7 @@ proc initInitializeParams(): JsonNode =
       clientInfo = some(create(ClientInfo, name = "moe", version = some("0.2.0"))),
       processId = getCurrentProcessId(),
       rootPath = none(string),
-      rootUri = "file:///tmp/",
+      rootUri = "/home/fox/git/moe",
       initializationOptions = none(JsonNode),
       capabilities = create(ClientCapabilities,
         workspace = none(WorkspaceClientCapabilities),
@@ -27,6 +27,20 @@ proc initInitializeParams(): JsonNode =
       ),
       trace = none(string),
       workspaceFolders = none(seq[WorkspaceFolder])
+    ).JsonNode)
+  ).JsonNode
+
+proc didOpenParams(uri, languageId: string, version: int): JsonNode =
+  let text = if fileExists(uri): readFile(uri) else: ""
+
+  result = create(RequestMessage, "2.0", 0, "textDocument/didOpen",
+    some(create(DidOpenTextDocumentParams,
+      textDocument = create(TextDocumentItem,
+        uri = uri,
+        languageId = languageId,
+        version = version,
+        text = text
+      )
     ).JsonNode)
   ).JsonNode
 
@@ -57,6 +71,21 @@ proc sendInitializeRequest*(client: var LspClient) =
     "id": id,
     "method": "initialize",
     "params": %initializeParams
+  }
+
+  client.inputStream.sendJson(req)
+
+proc sendDidOpenRequest*(client: var LspClient,
+                         uri, languageId: string,
+                         version: int) =
+
+  let id = 0
+
+  var req = %*{
+    "jsonrpc": jsonRpcversion,
+    "id": id,
+    "method": "textDocument/didOpen",
+    "params": %didOpenParams(uri, languageId, version)
   }
 
   client.inputStream.sendJson(req)
