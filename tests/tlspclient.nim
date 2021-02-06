@@ -8,3 +8,16 @@ test "Send initialize request":
   client.sendInitializeRequest
 
   echo client.outputStream.readFrame
+
+test "Send DidOpen request":
+  var client = initLspClient()
+
+  client.sendInitializeRequest
+
+  const
+    uri = ""
+    languageId = ""
+    version = 1
+  client.sendDidOpenRequest(uri, languageId, version)
+
+  echo client.outputStream.readFrame
